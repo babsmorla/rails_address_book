@@ -1,0 +1,9 @@
+
+
+<%# Action 1: Remove the row (You already have this) %>
+<%= turbo_stream.remove dom_id(@contact) %>
+
+<%# Action 2: Update the counter %>
+<%= turbo_stream.update "contacts_count" do %>
+  <%= Contact.count %>
+<% end %>

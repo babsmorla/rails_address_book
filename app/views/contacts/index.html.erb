@@ -6,7 +6,7 @@
       <h1 class="text-2xl font-medium text-gray-900">My Contacts</h1>
       <p class="text-sm text-gray-500 mt-0.5">Manage your address book</p>
     </div>
-    <%= link_to new_contact_path, class: "inline-flex items-center gap-1.5 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors" do %>
+    <%= link_to new_contact_path, class: "inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors" do %>
       <span class="text-base leading-none">+</span> Add contact
     <% end %>
   </div>
@@ -14,7 +14,10 @@
   <%# Stats row %>
   <div class="grid grid-cols-3 gap-3 mb-6">
     <div class="bg-gray-50 rounded-lg px-4 py-3">
-      <div class="text-xl font-medium"><%= @contacts.size %></div>
+      <%# REMOVED the IF check from here. We keep the ID permanent so Turbo can always find it. %>
+      <div class="text-xl font-medium" id="contacts_count">
+        <%= @contacts.size %>
+      </div>
       <div class="text-xs text-gray-500 mt-0.5">Total contacts</div>
     </div>
   </div>
@@ -46,16 +49,16 @@
             <th class="px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-wide text-gray-400">Actions</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100">
+        <tbody class="divide-y divide-gray-100" id="contacts_table_body"> <%# Added ID for better targeting %>
           <% if @contacts.empty? %>
-            <tr>
+            <tr id="no_contacts_row"> <%# Added ID %>
               <td colspan="4" class="text-center py-12 text-gray-400 text-sm">
                 No contacts match your search.
               </td>
             </tr>
           <% else %>
             <% @contacts.each_with_index do |contact, index| %>
-              <tr class="hover:bg-gray-50 transition-colors">
+              <tr id="<%= dom_id(contact) %>" class="hover:bg-gray-50 transition-colors">
                 <td class="px-4 py-3 text-xs text-gray-400 font-medium"><%= index + 1 %></td>
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2.5">
@@ -83,11 +86,4 @@
       </table>
     </div>
   <% end %>
-
-  
 </div>
-
-
-
-
-

@@ -50,15 +50,20 @@ end
   end
 
   def destroy
-    if current_user  !=  @contact.user
-      redirect_to contacts_path, alert: "You cannot delete this contact"
+  if current_user != @contact.user
+    redirect_to contacts_path, alert: "You cannot delete this contact"
+  else 
+    @contact.destroy
+    
+    respond_to do |format|
+      # This stays for non-JS browsers or manual refreshes
+      format.html { redirect_to contacts_path, notice: "Contact deleted successfully" }
       
-    else 
-      @contact.destroy
-      redirect_to contacts_path, notice: "Contact deleted succefully"
+      # This looks for destroy.turbo_stream.erb to update the count and row instantly
+      format.turbo_stream
     end
   end
-
+end
   private 
 
   def set_contact

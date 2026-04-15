@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+ <head>
+    <title><%= content_for(:title) || "My Addressbook" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+    <%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+
+  </head>
+
+  <%# We use flex h-screen to perfectly center your forms %>
+  <body class="bg-slate-50 flex items-center justify-center min-h-screen p-6">
+    <div class="w-full max-w-md">
+     
+      <%# Flash Messages %>
+      <% if notice.present? || alert.present? %>
+        <div  popover="manual" data-controller="flash" class="flash" class="mb-4 p-4 rounded-xl text-sm <%= notice ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700' %>">
+          <%= notice || alert %>
+        </div>
+      <% end %>
+
+
+ 
+      
+
+      <%# This yield will only render the login/signup form %>
+      <%= yield %>
+      
+      <div class="mt-8 text-center">
+        <%= link_to "← Back to Home", root_path, class: "text-xs font-medium text-gray-400 hover:text-gray-600" %>
+      </div>
+    </div>
+  </body>
+</html>

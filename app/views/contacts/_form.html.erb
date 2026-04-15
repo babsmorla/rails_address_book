@@ -1,21 +1,39 @@
-<%= form_with model: @contact do |f| %>
 
-  <div>
 
-    <%= f.label :first_name %>
-      <%= f.text_field :first_name %>
-  </div>
+  <%= form_with model: @contact, class: "space-y-6" do |f| %>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="flex flex-col gap-1.5">
+        <%= f.label :first_name, class: "text-sm font-semibold text-gray-700" %>
+        <%= f.text_field :first_name, 
+            placeholder: "e.g. Ebo", 
+            class: "block w-full px-4 py-3 rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-gray-400" %>
+      </div>
 
-  <div>
+      <div class="flex flex-col gap-1.5">
+        <%= f.label :last_name, class: "text-sm font-semibold text-gray-700" %>
+        <%= f.text_field :last_name, 
+            placeholder: "e.g. Rice", 
+            class: "block w-full px-4 py-3 rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-gray-400" %>
+      </div>
+    </div>
 
-    <%= f.label :last_name %>
-      <%= f.text_field :last_name %>
-  </div>
-  <div>
+    <div class="flex flex-col gap-1.5">
+      <%= f.label :phone_number, class: "text-sm font-semibold text-gray-700" %>
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          
+        </div>
+        <%= f.text_field :phone_number, 
+            placeholder: "0553 000 000", 
+            class: "block w-full pl-10 px-4 py-3 rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-gray-400" %>
+      </div>
+    </div>
 
-    <%= f.label :phone_number %>
-      <%= f.text_field :phone_number %>
-  </div>
+    <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
+      <%= link_to 'Cancel', contacts_path, class: "px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors" %>
+      <%= f.submit "Save Contact", 
+          class: "px-6 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-xl shadow-md hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-500/30 transition-all cursor-pointer" %>
+    </div>
 
-  <%= f.submit %>
-    <% end %>
+  <% end %>

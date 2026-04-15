@@ -1,5 +1,7 @@
 class SessionsController < ApplicationController
 
+  layout "auth"
+
   def new
   end
 
@@ -23,7 +25,7 @@ end
   def destroy
     session[:user_id] = nil
     reset_session
-    redirect_to sessions_path, notice: "Logged Out Succefully", status: :see_other
+    redirect_to new_session_path, notice: "Logged Out Succefully", status: :see_other
   end
   
 end
