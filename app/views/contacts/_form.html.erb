@@ -6,6 +6,7 @@
       <div class="flex flex-col gap-1.5">
         <%= f.label :first_name, class: "text-sm font-semibold text-gray-700" %>
         <%= f.text_field :first_name, 
+         required: true,
             placeholder: "e.g. Ebo", 
             class: "block w-full px-4 py-3 rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-gray-400" %>
       </div>
@@ -13,21 +14,25 @@
       <div class="flex flex-col gap-1.5">
         <%= f.label :last_name, class: "text-sm font-semibold text-gray-700" %>
         <%= f.text_field :last_name, 
+        required: true,
             placeholder: "e.g. Rice", 
             class: "block w-full px-4 py-3 rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-gray-400" %>
       </div>
     </div>
 
     <div class="flex flex-col gap-1.5">
-      <%= f.label :phone_number, class: "text-sm font-semibold text-gray-700" %>
-      <div class="relative">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          
-        </div>
-        <%= f.text_field :phone_number, 
-            placeholder: "0553 000 000", 
-            class: "block w-full pl-10 px-4 py-3 rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-gray-400" %>
+      <%= f.label :phone_number, "Phone Number" %>
+    <%= f.text_field :phone_number,
+     placeholder: "e.g. 0244123456",
+     required: true,
+     maxlength: 10,  
+     class: "block w-full px-4 py-3 rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-gray-400" %>
+
+    <% if @contact.errors[:phone_number].any? %>
+      <div style="color: #d9534f; font-size: 0.85rem; margin-top: 4px;">
+        <%= @contact.errors[:phone_number].first %>
       </div>
+    <% end %>
     </div>
 
     <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">

@@ -30,7 +30,7 @@ end
     if @contact.save
       redirect_to contacts_path, notice: "Contact Created successfully"
     else
-      render :new
+      render :new, status: :unprocessable_entity 
     end
 
   end
