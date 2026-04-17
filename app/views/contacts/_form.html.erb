@@ -8,7 +8,7 @@
         <%= f.text_field :first_name, 
          required: true,
             placeholder: "e.g. Ebo", 
-            class: "block w-full px-4 py-3 rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-gray-400" %>
+            class: "bg-place block w-full px-4 py-3 rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-gray-400" %>
       </div>
 
       <div class="flex flex-col gap-1.5">
@@ -16,7 +16,7 @@
         <%= f.text_field :last_name, 
         required: true,
             placeholder: "e.g. Rice", 
-            class: "block w-full px-4 py-3 rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-gray-400" %>
+            class: "bg-place block w-full px-4 py-3 rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-gray-400" %>
       </div>
     </div>
 
@@ -26,7 +26,7 @@
      placeholder: "e.g. 0244123456",
      required: true,
      maxlength: 10,  
-     class: "block w-full px-4 py-3 rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-gray-400" %>
+     class: "bg-place block w-full px-4 py-3 rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-gray-400" %>
 
     <% if @contact.errors[:phone_number].any? %>
       <div style="color: #d9534f; font-size: 0.85rem; margin-top: 4px;">

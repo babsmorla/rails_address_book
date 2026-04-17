@@ -6,12 +6,14 @@
    ============================================================ */
 
 /* ── Tailwind directives (remove if not using Tailwind) ───── */
-@import "tailwindcss";
+
 
 
 /* ── Fonts ─────────────────────────────────────────────────── */
 /* Swap in your preferred font from Google Fonts or local */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+
 
 
 /* ── CSS Custom Properties (Design Tokens) ──────────────────── */
@@ -435,17 +437,42 @@ textarea,
 select {
   display: block;
   width: 100%;
-  padding: var(--space-2) var(--space-3);
+
+  /* py-3 px-4 equivalent using your spacing variables */
+  padding: var(--space-3) var(--space-4);
+
+  /* rounded-xl equivalent using your radius variable */
+  border-radius: var(--radius-xl);
+
+  /* border-gray-300 shadow-sm styling */
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+
   font-size: var(--text-sm);
   font-family: var(--font-sans);
   line-height: var(--leading-normal);
   color: var(--color-text);
   background: var(--color-bg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+
+  /* transition-all */
+  transition: all var(--transition-fast);
   outline: none;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   appearance: none;
+}
+
+/* focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 */
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--color-primary);
+  /* The "ring-2" effect in Tailwind is a box-shadow stack */
+  box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-primary-light);
+}
+
+/* placeholder:text-gray-400 */
+::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
 }
 
 input:focus,
@@ -809,7 +836,10 @@ input[type="radio"] {
     content: " (" attr(href) ")";
   }
 
-  .no-print {
-    display: none !important;
-  }
+
+}
+
+
+.bg-pale {
+  background-color: rgb(252, 217, 217);
 }

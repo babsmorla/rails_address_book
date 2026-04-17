@@ -63,7 +63,9 @@ end
       format.turbo_stream
     end
   end
-end
+  end
+
+  
   private 
 
   def set_contact

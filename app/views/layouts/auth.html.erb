@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <html>
  <head>
-    <title><%= content_for(:title) || "My Addressbook" %></title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <%= csrf_meta_tags %>
-    <%= csp_meta_tag %>
+  <title><%= content_for(:title) || "My Addressbook" %></title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
 
-    <%= yield :head %>
-    <%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
+  <%= yield :head %>
 
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
+  <%# Combine your primary styles here. Rails will handle the preloading correctly. %>
+  <%= stylesheet_link_tag :application, "tailwind", "inter-font", "application", "data-turbo-track": "reload" %>
+  
+  <%= javascript_importmap_tags %>
 
-    <link rel="icon" href="/icon.png" type="image/png">
+  <link rel="icon" href="/icon.png" type="image/png">
+</head>
 
-  </head>
 
   <%# We use flex h-screen to perfectly center your forms %>
   <body class="bg-slate-50 flex items-center justify-center min-h-screen p-6">

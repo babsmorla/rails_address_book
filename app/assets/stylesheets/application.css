@@ -1,3 +1,78 @@
-@import "/base.css"
+/* Flash Message Container - Bottom Right */
+.flash {
+  position: fixed;
+  bottom: 2rem;
+  /* Anchored to bottom */
+  left: 2rem;
+  /* Anchored to right */
+  z-index: 1;
+
+  /* Reset the top property in case it was set elsewhere */
+  top: auto;
+
+  /* Use your custom variables */
+  background-color: var(--color-bg-subtle);
+  color: var(--color-text);
+  border: 1px solid var(--color-border-strong);
+
+  padding: 1rem 1.5rem;
+  min-width: 400px;
+  box-shadow: 0 10px 10px -5px rgba(0, 0, 0, 0.05);
+
+  /* Slide up from the bottom */
+  animation: toastIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.flash__content {
+  display: flex;
+  align-items: center;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Accent bar on the left */
+.flash::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 4px;
+  background-color: var(--color-success);
+  border-radius: 0 4px 4px 0;
+}
+
+/* The Ease Out (Triggered by Stimulus) */
+.flash.hiding {
+  animation: toastOut 0.4s ease-in forwards;
+}
+
+/* Animations */
+@keyframes toastIn {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toastOut {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  to {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+}
+
+
 
 
