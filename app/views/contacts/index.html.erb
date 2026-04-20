@@ -16,14 +16,15 @@
     <div class="bg-gray-50 rounded-lg px-4 py-3">
       <%# REMOVED the IF check from here. We keep the ID permanent so Turbo can always find it. %>
       <div class="text-xl font-medium" id="contacts_count">
-        <%= @contacts.size %>
+        <%= Contact.count %>
       </div>
       <div class="text-xs text-gray-500 mt-0.5">Total contacts</div>
     </div>
   </div>
 
   <%# Search %>
-  <div class="relative mb-5">
+  <div class="flex justify-between">
+    <div class="relative mb-5">
     <%= form_with url: contacts_path, method: :get,
                   data: { controller: "search", action: "input->search#submit", turbo_frame: "contacts_list" } do |f| %>
       
@@ -35,6 +36,25 @@
     <% end %>
   </div>
 
+
+  <div class="flex items-center justify-center gap-4 my-6">
+  <%# Previous Button %>
+  <%= link_to_prev_page @contacts, "Prev",
+      class: "px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100 text-gray-700" %>
+
+  <%# Page Info %>
+  <span class="text-sm text-gray-600">
+    Page <%= @contacts.current_page %> of <%= @contacts.total_pages %>
+  </span>
+
+  <%# Next Button %>
+  <%= link_to_next_page @contacts, "Next", 
+      class: "px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100 text-gray-700" %>
+</div>
+  </div>
+
+
+  
   <%# Table %>
   <%= turbo_frame_tag "contacts_list" do %>
     <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
@@ -51,13 +71,13 @@
           <% if @contacts.empty? %>
             <tr id="no_contacts_row"> <%# Added ID %>
               <td colspan="4" class="text-center py-12 text-gray-400 text-sm">
-                No contacts match your search.
+                No contacts added yet.
               </td>
             </tr>
           <% else %>
             <% @contacts.each_with_index do |contact, index| %>
               <tr id="<%= dom_id(contact) %>" class="hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-3 text-xs text-gray-400 font-medium"><%= index + 1 %></td>
+                <td class="px-4 py-3 text-xs text-gray-400 font-medium"><%= @contacts.offset_value + index + 1 %></td>
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-2.5">
                     <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-xs font-medium text-blue-600 shrink-0">

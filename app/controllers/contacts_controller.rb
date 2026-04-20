@@ -4,7 +4,8 @@ class ContactsController < ApplicationController
   before_action :require_login
 
   def index
-  @contacts = current_user.contacts
+    
+  @contacts = current_user.contacts.order(:first_name).page(params[:page]).per(10)
 
   if params[:query].present?
     @contacts = @contacts.where(

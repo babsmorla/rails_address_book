@@ -1,6 +1,6 @@
 class Contact < ApplicationRecord
 
-  GH_PHONE_REGEX = /\A(\+?233|0)[235]\d{8}\z/
+  GH_PHONE_REGEX = /\A(\+?233|0)(2[034567]|5[0345679])\d{7}\z/
   
   belongs_to :user
   validates :phone_number, presence: true, length: { is: 10 }, format: { 
