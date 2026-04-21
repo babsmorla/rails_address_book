@@ -1,7 +1,18 @@
 Rails.application.routes.draw do
   resources "sessions", only: [:new, :create, :destroy ]
-  resources "users", only: [:new, :create]
+  resources "users"
   resources "contacts" 
+
+  get 'settings/password', to: 'users#change_password', as: :edit_password
+patch 'settings/password', to: 'users#update_password', as: :update_password
+
+  # resources :users do
+  #   member do
+  #     get 'change_password' # This creates the view page
+  #     patch 'update_password' # This handles the form submission
+  #   end
+  # end
+  
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

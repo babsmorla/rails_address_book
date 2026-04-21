@@ -9,8 +9,9 @@ class ContactsController < ApplicationController
 
   if params[:query].present?
     @contacts = @contacts.where(
-      "first_name ILIKE ? OR last_name ILIKE ?", 
+      "first_name ILIKE ? OR last_name ILIKE ? OR phone_number ILIKE ? ", 
       "%#{params[:query]}%", 
+      "%#{params[:query]}%",
       "%#{params[:query]}%"
     )
   end

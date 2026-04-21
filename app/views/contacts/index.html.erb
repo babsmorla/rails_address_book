@@ -38,22 +38,30 @@
 
 
   <div class="flex items-center justify-center gap-4 my-6">
-  <%# Previous Button %>
-  <%= link_to_prev_page @contacts, "Prev",
-      class: "px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100 text-gray-700" %>
+  
+  <%# Previous Button Logic %>
+  <% if @contacts.first_page? %>
+    <span class="px-3 py-1 bg-gray-50 border border-gray-200 rounded text-gray-400 cursor-not-allowed">Prev</span>
+  <% else %>
+    <%= link_to_prev_page @contacts, "Prev",
+        class: "px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100 text-gray-700" %>
+  <% end %>
 
   <%# Page Info %>
-  <span class="text-sm text-gray-600">
+  <span class="text-sm font-medium text-gray-600">
     Page <%= @contacts.current_page %> of <%= @contacts.total_pages %>
   </span>
 
-  <%# Next Button %>
-  <%= link_to_next_page @contacts, "Next", 
-      class: "px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100 text-gray-700" %>
+  <%# Next Button Logic %>
+  <% if @contacts.last_page? %>
+    <span class="px-3 py-1 bg-gray-50 border border-gray-200 rounded text-gray-400 cursor-not-allowed">Next</span>
+  <% else %>
+    <%= link_to_next_page @contacts, "Next", 
+        class: "px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100 text-gray-700" %>
+  <% end %>
+
 </div>
   </div>
-
-
   
   <%# Table %>
   <%= turbo_frame_tag "contacts_list" do %>
