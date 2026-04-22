@@ -64,8 +64,12 @@
   </div>
   
   <%# Table %>
-  <%= turbo_frame_tag "contacts_list" do %>
-    <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+  <%# Table & Mobile Cards Container %>
+<%= turbo_frame_tag "contacts_list" do %>
+  <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+    
+    <%# --- Desktop Table View (Hidden on mobile) --- %>
+    <div class="hidden md:block">
       <table class="w-full text-sm">
         <thead class="bg-gray-50 border-b border-gray-200">
           <tr>
@@ -75,12 +79,10 @@
             <th class="px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-wide text-gray-400">Actions</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100" id="contacts_table_body"> <%# Added ID for better targeting %>
+        <tbody class="divide-y divide-gray-100">
           <% if @contacts.empty? %>
-            <tr id="no_contacts_row"> <%# Added ID %>
-              <td colspan="4" class="text-center py-12 text-gray-400 text-sm">
-                No contacts added yet.
-              </td>
+            <tr>
+              <td colspan="4" class="text-center py-12 text-gray-400 text-sm">No contacts added yet.</td>
             </tr>
           <% else %>
             <% @contacts.each_with_index do |contact, index| %>
@@ -97,20 +99,60 @@
                 <td class="px-4 py-3 font-mono text-xs text-gray-500"><%= contact.phone_number %></td>
                 <td class="px-4 py-3">
                   <div class="flex items-center gap-1.5">
-                    <%= link_to 'Edit', edit_contact_path(contact),
-                        class: "px-2.5 py-1 text-xs font-medium text-blue-600 border border-gray-200 rounded-md hover:bg-blue-50 hover:border-blue-200 transition-colors",
-                        data: { turbo: false } %>
-                    <%= link_to 'Delete', contact_path(contact),
-                        data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' },
-                        class: "px-2.5 py-1 text-xs font-medium text-red-500 border border-gray-200 rounded-md hover:bg-red-50 hover:border-red-200 transition-colors" %>
+                    <%= link_to 'Edit', edit_contact_path(contact), class: "px-2.5 py-1 text-xs font-medium text-blue-600 border border-gray-200 rounded-md hover:bg-blue-50 transition-colors", data: { turbo: false } %>
+                    <%= link_to 'Delete', contact_path(contact), data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' }, class: "px-2.5 py-1 text-xs font-medium text-red-500 border border-gray-200 rounded-md hover:bg-red-50 transition-colors" %>
                   </div>
                 </td>
               </tr>
-              
             <% end %>
           <% end %>
         </tbody>
       </table>
     </div>
+
+    <%# --- Mobile Card View (Hidden on desktop) --- %>
+    <div class="md:hidden divide-y divide-gray-100 bg-white">
+  <% if @contacts.empty? %>
+    <div class="text-center py-12 text-gray-400 text-sm">No contacts added yet.</div>
+  <% else %>
+    <% @contacts.each do |contact| %>
+      <div id="mobile_<%= dom_id(contact) %>" class="p-4 active:bg-gray-50 transition-colors">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-4">
+            <%# Larger Avatar with higher contrast %>
+            <div class="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-sm font-bold text-indigo-600 shadow-sm">
+              <%= contact.first_name[0] %><%= contact.last_name[0] %>
+            </div>
+            
+            <div>
+              <div class="font-bold text-gray-900 text-base tracking-tight">
+                <%= contact.first_name %> <%= contact.last_name %>
+              </div>
+              <div class="flex items-center gap-1.5 mt-0.5">
+                <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                <span class="text-xs font-mono text-gray-500"><%= contact.phone_number %></span>
+              </div>
+            </div>
+          </div>
+
+          <%# Quick Action: Direct Call (Great for Mobile UX) %>
+          
+        </div>
+        
+        <%# Secondary Actions %>
+        <div class="flex gap-2.5">
+          <%= link_to edit_contact_path(contact), class: "flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all shadow-sm", data: { turbo: false } do %>
+            Edit
+          <% end %>
+          <%= link_to contact_path(contact), data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' }, class: "flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold text-red-600 bg-red-50/50 border border-red-100 rounded-xl hover:bg-red-50 transition-all" do %>
+            Delete
+          <% end %>
+        </div>
+      </div>
+    <% end %>
   <% end %>
+</div>
+
+  </div>
+<% end %>
 </div>
