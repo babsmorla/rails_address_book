@@ -17,9 +17,10 @@ gem "stimulus-rails"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 
-gem 'letter_opener_web', group: :development
+gem "letter_opener_web", group: :development
+gem "csv"
 
-gem 'kaminari'
+gem "kaminari"
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 gem "bcrypt", "~> 3.1.7"
  gem "tailwindcss-rails", "~> 3.3.1"
@@ -72,3 +73,7 @@ end
 
 
 
+
+gem "rubocop", "~> 1.86", group: :development
+
+gem "rubocop-rails", "~> 2.34", group: :development

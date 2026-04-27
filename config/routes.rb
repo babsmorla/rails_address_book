@@ -1,15 +1,21 @@
 Rails.application.routes.draw do
- # 1. Cleaned up Password Resets
-  resources :password_resets, only: [ :new, :create, :edit, :update], param: :token
-  resources "sessions", only: [:new, :create, :destroy ]
+  # 1. Cleaned up Password Resets
+  resources :password_resets, only: [ :new, :create, :edit, :update ], param: :token
+  resources "sessions", only: [ :new, :create, :destroy ]
   resources "users"
-  resources "contacts" 
+  resources "contacts"
 
-  get 'settings/password', to: 'users#change_password', as: :edit_password
-patch 'settings/password', to: 'users#update_password', as: :update_password
+  get "settings/password", to: "users#change_password", as: :edit_password
+patch "settings/password", to: "users#update_password", as: :update_password
 
-post 'password/forgot', to: 'password_resets#create'
-post 'password/reset', to: 'password_resets#update'
+post "password/forgot", to: "password_resets#create"
+post "password/reset", to: "password_resets#update"
+
+resources :contacts do
+  collection do
+    post :bulk_actions
+  end
+end
 
 mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
 
@@ -19,7 +25,7 @@ mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
   #     patch 'update_password' # This handles the form submission
   #   end
   # end
-  
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

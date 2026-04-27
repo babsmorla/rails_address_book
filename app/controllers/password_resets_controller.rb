@@ -27,7 +27,7 @@
 #   end
 
 
-  
+
 #   def update
 #     token = params[:token].to_s
 #     user = User.find_by(reset_password_token: token)
@@ -35,25 +35,25 @@
 #     if user.present? && user.password_token_valid?
 #       if user.reset_password!(params[:password])
 #       redirect_to root_path, notice: "Password updated successfully!"
-      
+
 #       else
 #         flash.now[:alert] = user.errors.full_messages.to_sentence
 #         render :edit, status: :unprocessable_entity
-        
+
 #       end
 #     else
-      
+
 #       redirect_to new_password_reset_path, alert: "Link expired."
-      
+
 #     end
 #   end
 # end
 
 class PasswordResetsController < ApplicationController
   layout "auth"
-  
+
   # 1. Add the before_action at the top
-  before_action :set_user, only: [:edit, :update]
+  before_action :set_user, only: [ :edit, :update ]
 
   def new
   end
@@ -93,7 +93,7 @@ class PasswordResetsController < ApplicationController
   # 2. Define the private method to find the user
   def set_user
     @user = User.find_by(reset_password_token: params[:token])
-    
+
     # If the token is fake or expired, stop them immediately
     if @user.blank?
       redirect_to new_password_reset_path, alert: "Link invalid or expired."

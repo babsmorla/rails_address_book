@@ -1,0 +1,115 @@
+<%= turbo_frame_tag "contacts_list" do %>
+  <div class="space-y-4">
+    
+    <%# We wrap the entire content in a form to capture checkbox selections %>
+    <%= form_with url: bulk_actions_contacts_path, method: :post, data: { turbo_frame: "_top" } do |f| %>
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+        <%# Bulk Action Buttons %>
+        <div class="flex items-center gap-2">
+          <%= f.button name: "bulk_action", value: "export", class: "inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl shadow-sm transition hover:bg-gray-50 hover:border-gray-300", data: { turbo: false } do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Export Selected
+          <% end %>
+
+          <%= f.button name: "bulk_action", value: "delete", 
+              data: { turbo_confirm: "Are you sure you want to delete the selected contacts?" }, 
+              class: "inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-red-600 bg-red-50 border border-red-100 rounded-xl shadow-sm transition hover:bg-red-100" do %>
+            <span class="text-lg leading-none">×</span>
+            Delete Selected
+          <% end %>
+        </div>
+
+        <%# Original Download All Link %>
+        <%= link_to contacts_path(format: :csv, query: params[:query]),
+            class: "text-xs font-medium text-gray-500 hover:text-indigo-600 transition-colors",
+            data: { turbo: false } do %>
+          Download All as CSV
+        <% end %>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+        
+        <%# --- Desktop Table View --- %>
+        <div class="hidden md:block">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th class="w-12 px-6 py-4">
+                  <input type="checkbox" id="select_all_contacts" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase text-gray-400">Name</th>
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase text-gray-400">Phone</th>
+                <th class="px-6 py-4 text-right text-xs font-bold uppercase text-gray-400">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <% if @contacts.empty? %>
+                <tr>
+                  <td colspan="4" class="text-center py-16 text-gray-400 italic">No contacts found matching your criteria.</td>
+                </tr>
+              <% else %>
+                <% @contacts.each do |contact| %>
+                  <tr id="<%= dom_id(contact) %>" class="hover:bg-gray-50 transition-colors group">
+                    <td class="px-6 py-4">
+                      <%= check_box_tag "contact_ids[]", contact.id, false, class: "contact-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer" %>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-xs font-bold text-indigo-600 group-hover:bg-indigo-100">
+                          <%= contact.first_name[0] %><%= contact.last_name[0] %>
+                        </div>
+                        <span class="font-semibold text-gray-900"><%= contact.first_name %> <%= contact.last_name %></span>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 font-mono text-gray-600"><%= contact.phone_number %></td>
+                    <td class="px-6 py-4 text-right">
+                      <div class="flex justify-end gap-2">
+                        <%= link_to 'Edit', edit_contact_path(contact), class: "px-3 py-1.5 text-xs font-bold text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors", data: { turbo: false } %>
+                        <%= link_to 'Delete', contact_path(contact), data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' }, class: "px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors" %>
+                      </div>
+                    </td>
+                  </tr>
+                <% end %>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+
+        <%# --- Mobile Card View --- %>
+        <div class="md:hidden divide-y divide-gray-100">
+          <% if @contacts.empty? %>
+            <div class="text-center py-12 text-gray-400">No contacts found.</div>
+          <% else %>
+            <% @contacts.each do |contact| %>
+              <div id="mobile_<%= dom_id(contact) %>" class="p-4 active:bg-gray-50">
+                <div class="flex items-start justify-between mb-4">
+                  <div class="flex items-center gap-4">
+                    <%# Checkbox for mobile %>
+                    <%= check_box_tag "contact_ids[]", contact.id, false, class: "contact-checkbox rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" %>
+                    
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-sm font-bold text-indigo-600">
+                      <%= contact.first_name[0] %><%= contact.last_name[0] %>
+                    </div>
+                    <div>
+                      <div class="font-bold text-gray-900"><%= contact.first_name %> <%= contact.last_name %></div>
+                      <div class="text-xs font-mono text-gray-500 mt-1"><%= contact.phone_number %></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <%= link_to "Edit", edit_contact_path(contact), class: "flex-1 text-center py-2.5 text-xs font-bold text-gray-700 bg-white border border-gray-200 rounded-xl", data: { turbo: false } %>
+                  <%= link_to "Delete", contact_path(contact), data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' }, class: "flex-1 text-center py-2.5 text-xs font-bold text-red-600 bg-red-50 border border-red-100 rounded-xl" %>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %> <%# End form_with %>
+
+  </div>
+<% end %>
+

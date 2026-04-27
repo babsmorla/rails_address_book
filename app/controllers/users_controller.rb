@@ -1,9 +1,9 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [ :show, :edit, :update, :change_password, :update_password  ] 
+  before_action :set_user, only: [ :show, :edit, :update, :change_password, :update_password  ]
   attr
   layout :resolve_layout
-  
- 
+
+
   def new
     @user = User.new
   end
@@ -16,15 +16,12 @@ class UsersController < ApplicationController
     else
       render :new
     end
-
   end
 
   def change_password
-
   end
 
-  def update_password 
-
+  def update_password
     if @user.authenticate(params[:user][:current_password])
       if @user.update(user_params)
         redirect_to user_path(@user), notice: "Password successfully updated!"
@@ -35,32 +32,28 @@ class UsersController < ApplicationController
       @user.errors.add(:current_password, "is incorrect")
       render :change_password, status: :unprocessable_entity
     end
-  
   end
 
 
-  def update 
+  def update
     # Standard profile update (username, etc.)
     if @user.update(user_params.except(:password, :password_confirmation))
       redirect_to user_path(@user), notice: "Profile updated!"
     else
       render :edit, status: :unprocessable_entity
     end
-  
-  end 
+  end
 
 
 
   def show
-
-  end 
+  end
 
   def edit
-    
-  end 
+  end
 
 
- private 
+ private
 
  def set_user
   @user = current_user

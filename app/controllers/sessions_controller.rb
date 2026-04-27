@@ -1,12 +1,10 @@
 class SessionsController < ApplicationController
-
   layout "auth"
 
   def new
   end
 
   def create
-
   email = params[:email] || params.dig(:session, :email)
   password = params[:password] || params.dig(:session, :password)
 
@@ -14,11 +12,11 @@ class SessionsController < ApplicationController
 
   if user && user.authenticate(password)
     reset_session
-    session[:user_id] = user.id 
+    session[:user_id] = user.id
     redirect_to contacts_path(@contacts), notice: "Logged in successfully"
   else
-    flash.now[:alert] = "Invalid Email or Password" 
-    render :new, status: :unprocessable_entity 
+    flash.now[:alert] = "Invalid Email or Password"
+    render :new, status: :unprocessable_entity
   end
 end
 
@@ -27,5 +25,4 @@ end
     reset_session
     redirect_to new_session_path, notice: "Logged Out Succefully", status: :see_other
   end
-  
 end

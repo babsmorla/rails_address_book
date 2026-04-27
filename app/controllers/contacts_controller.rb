@@ -1,24 +1,52 @@
 class ContactsController < ApplicationController
-
-  before_action :set_contact, only: [:show, :edit, :update, :destroy]
+  before_action :set_contact, only: [ :show, :edit, :update, :destroy ]
   before_action :require_login
 
   def index
-    
-  @contacts = current_user.contacts.order(:first_name).page(params[:page]).per(10)
+   query_scope = current_user.contacts.order(:first_name)
 
-  if params[:query].present?
-    @contacts = @contacts.where(
-      "first_name ILIKE ? OR last_name ILIKE ? OR phone_number ILIKE ? ", 
-      "%#{params[:query]}%", 
-      "%#{params[:query]}%",
-      "%#{params[:query]}%"
-    )
-  end
+    # 2. Apply search filters if present
+    if params[:query].present?
+      search_query = "%#{params[:query]}%"
+      query_scope = query_scope.where(
+        "first_name ILIKE ? OR last_name ILIKE ? OR phone_number ILIKE ?",
+        search_query, search_query, search_query
+      )
+    end
 
-  # This line prevents the "Double Table" look by only sending the frame content
-  render layout: false if turbo_frame_request?
+    # 3. Handle different formats
+    respond_to do |format|
+      format.html do
+        @contacts = query_scope.page(params[:page]).per(10)
+        render layout: false if turbo_frame_request?
+      end
+
+      format.csv do
+        @contacts = query_scope
+        send_data @contacts.to_csv, filename: "contacts-#{Date.today}.csv"
+      end
+    end
 end
+
+
+
+def bulk_actions
+  # Always scope to current_user for security!
+  @contacts = current_user.contacts.where(id: params[:contact_ids])
+
+  case params[:bulk_action]
+  when "delete"
+    count = @contacts.count
+    @contacts.destroy_all
+    redirect_to contacts_path, notice: "Successfully deleted #{count} contacts."
+  when "export"
+    send_data @contacts.to_csv, filename: "contacts_export_#{Date.today}.csv"
+  else
+    redirect_to contacts_path, alert: "Please select an action and contacts."
+  end
+end
+
+
 
   def show
   end
@@ -32,15 +60,11 @@ end
     if @contact.save
       redirect_to contacts_path, notice: "Contact Created successfully"
     else
-      render :new, status: :unprocessable_entity 
+      render :new, status: :unprocessable_entity
     end
-
   end
 
   def edit
-    # if @contact.user != current_user
-    #   redirect_to contact_path(@contact), alert: "You cannot edit this contact"
-    # end
   end
 
   def update
@@ -48,42 +72,41 @@ end
       redirect_to contacts_path, notice: "Contact updated successfully", status: :see_other
     else
       render :edit, status: :unprocessable_entity
-    end 
+    end
   end
 
   def destroy
   if current_user != @contact.user
     redirect_to contacts_path, alert: "You cannot delete this contact"
-  else 
+  else
     @contact.destroy
-    
+
     respond_to do |format|
-      # This stays for non-JS browsers or manual refreshes
       format.html { redirect_to contacts_path, notice: "Contact deleted successfully" }
-      
-      # This looks for destroy.turbo_stream.erb to update the count and row instantly
+
       format.turbo_stream
     end
   end
   end
 
+
+  private
   
-  private 
 
   def set_contact
       @contact = current_user.contacts.find(params[:id])
   rescue ActiveRecord::RecordNotFound
     redirect_to contacts_path, alert: "You are not authorized to view this contact."
   end
-  
-  def contact_params 
+
+  def contact_params
     params.require(:contact).permit(:first_name, :last_name, :phone_number)
   end
 
   def require_login
     unless current_user
       flash[:alert] = "You must be logged in to access this section"
-      redirect_to new_session_path   
+      redirect_to new_session_path
     end
   end
 end

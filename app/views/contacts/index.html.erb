@@ -1,158 +1,109 @@
 <div class="max-w-7xl mx-auto px-6 py-8">
 
-  <%# Header %>
-  <div class="flex items-start justify-between mb-8 flex-wrap gap-4">
-    <div>
-      <h1 class="text-2xl font-medium text-gray-900">My Contacts</h1>
-      <p class="text-sm text-gray-500 mt-0.5">Manage your address book</p>
+ <%# Page Header + Toolbar %>
+<div class="mb-10 space-y-6">
+
+  <%# Top Row: Title + Actions %>
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+
+    <%# Title Block %>
+    <div class="space-y-1">
+      <h1 class="text-3xl font-bold tracking-tight text-gray-900">
+        My Contacts
+      </h1>
+      <p class="text-sm text-gray-500">
+        Manage, organize, and export your address book
+      </p>
     </div>
-    <%= link_to new_contact_path, class: "inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors" do %>
-      <span class="text-base leading-none">+</span> Add contact
-    <% end %>
+
+    <%# Actions %>
+    <div class="flex items-center gap-3">
+
+           <%# Add Contact %>
+      <%= link_to new_contact_path,
+        class: "inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 rounded-xl shadow-md shadow-indigo-200 transition-all hover:bg-indigo-700 hover:shadow-lg active:scale-[0.98]" do %>
+
+        <span class="text-lg leading-none">+</span>
+        <span>Add Contact</span>
+
+      <% end %>
+
+    </div>
   </div>
 
-  <%# Stats row %>
-  <div class="grid grid-cols-3 gap-3 mb-6">
-    <div class="bg-gray-50 rounded-lg px-4 py-3">
-      <%# REMOVED the IF check from here. We keep the ID permanent so Turbo can always find it. %>
-      <div class="text-xl font-medium" id="contacts_count">
-        <%= Contact.count %>
-      </div>
-      <div class="text-xs text-gray-500 mt-0.5">Total contacts</div>
-    </div>
-  </div>
+  <%# Toolbar Card (Search + Pagination) %>
+  <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
-  <%# Search %>
-  <div class="flex justify-between">
-    <div class="relative mb-5">
-    <%= form_with url: contacts_path, method: :get,
-                  data: { controller: "search", action: "input->search#submit", turbo_frame: "contacts_list" } do |f| %>
+    <%# Search %>
+    <div class="relative w-full max-w-sm">
       
-      <%= f.text_field :query,
+
+      <%= form_with url: contacts_path,
+        method: :get,
+        data: { controller: "search", action: "input->search#submit", turbo_frame: "contacts_list" } do |f| %>
+
+        <%= f.text_field :query,
           value: params[:query],
-          placeholder: "Search contacts…",
+          placeholder: "Search contacts...",
           autocomplete: "off",
-          class: "w-full max-w-sm pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition" %>
-    <% end %>
-  </div>
+          class: "w-full pl-10 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl transition focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white" %>
 
-
-  <div class="flex items-center justify-center gap-4 my-6">
-  
-  <%# Previous Button Logic %>
-  <% if @contacts.first_page? %>
-    <span class="px-3 py-1 bg-gray-50 border border-gray-200 rounded text-gray-400 cursor-not-allowed">Prev</span>
-  <% else %>
-    <%= link_to_prev_page @contacts, "Prev",
-        class: "px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100 text-gray-700" %>
-  <% end %>
-
-  <%# Page Info %>
-  <span class="text-sm font-medium text-gray-600">
-    Page <%= @contacts.current_page %> of <%= @contacts.total_pages %>
-  </span>
-
-  <%# Next Button Logic %>
-  <% if @contacts.last_page? %>
-    <span class="px-3 py-1 bg-gray-50 border border-gray-200 rounded text-gray-400 cursor-not-allowed">Next</span>
-  <% else %>
-    <%= link_to_next_page @contacts, "Next", 
-        class: "px-3 py-1 bg-white border border-gray-300 rounded hover:bg-gray-100 text-gray-700" %>
-  <% end %>
-
-</div>
-  </div>
-  
-  <%# Table %>
-  <%# Table & Mobile Cards Container %>
-<%= turbo_frame_tag "contacts_list" do %>
-  <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
-    
-    <%# --- Desktop Table View (Hidden on mobile) --- %>
-    <div class="hidden md:block">
-      <table class="w-full text-sm">
-        <thead class="bg-gray-50 border-b border-gray-200">
-          <tr>
-            <th class="px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-wide text-gray-400 w-12">#</th>
-            <th class="px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-wide text-gray-400">Name</th>
-            <th class="px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-wide text-gray-400">Phone number</th>
-            <th class="px-4 py-2.5 text-left text-[11px] font-medium uppercase tracking-wide text-gray-400">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          <% if @contacts.empty? %>
-            <tr>
-              <td colspan="4" class="text-center py-12 text-gray-400 text-sm">No contacts added yet.</td>
-            </tr>
-          <% else %>
-            <% @contacts.each_with_index do |contact, index| %>
-              <tr id="<%= dom_id(contact) %>" class="hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-3 text-xs text-gray-400 font-medium"><%= @contacts.offset_value + index + 1 %></td>
-                <td class="px-4 py-3">
-                  <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-xs font-medium text-blue-600 shrink-0">
-                      <%= contact.first_name[0] %><%= contact.last_name[0] %>
-                    </div>
-                    <span class="font-medium text-gray-900"><%= contact.first_name %> <%= contact.last_name %></span>
-                  </div>
-                </td>
-                <td class="px-4 py-3 font-mono text-xs text-gray-500"><%= contact.phone_number %></td>
-                <td class="px-4 py-3">
-                  <div class="flex items-center gap-1.5">
-                    <%= link_to 'Edit', edit_contact_path(contact), class: "px-2.5 py-1 text-xs font-medium text-blue-600 border border-gray-200 rounded-md hover:bg-blue-50 transition-colors", data: { turbo: false } %>
-                    <%= link_to 'Delete', contact_path(contact), data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' }, class: "px-2.5 py-1 text-xs font-medium text-red-500 border border-gray-200 rounded-md hover:bg-red-50 transition-colors" %>
-                  </div>
-                </td>
-              </tr>
-            <% end %>
-          <% end %>
-        </tbody>
-      </table>
+      <% end %>
     </div>
 
-    <%# --- Mobile Card View (Hidden on desktop) --- %>
-    <div class="md:hidden divide-y divide-gray-100 bg-white">
-  <% if @contacts.empty? %>
-    <div class="text-center py-12 text-gray-400 text-sm">No contacts added yet.</div>
-  <% else %>
-    <% @contacts.each do |contact| %>
-      <div id="mobile_<%= dom_id(contact) %>" class="p-4 active:bg-gray-50 transition-colors">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center gap-4">
-            <%# Larger Avatar with higher contrast %>
-            <div class="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-sm font-bold text-indigo-600 shadow-sm">
-              <%= contact.first_name[0] %><%= contact.last_name[0] %>
-            </div>
-            
-            <div>
-              <div class="font-bold text-gray-900 text-base tracking-tight">
-                <%= contact.first_name %> <%= contact.last_name %>
-              </div>
-              <div class="flex items-center gap-1.5 mt-0.5">
-                <span class="inline-block w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                <span class="text-xs font-mono text-gray-500"><%= contact.phone_number %></span>
-              </div>
-            </div>
-          </div>
+    <%# Pagination %>
+    <div class="flex items-center gap-2">
 
-          <%# Quick Action: Direct Call (Great for Mobile UX) %>
-          
-        </div>
-        
-        <%# Secondary Actions %>
-        <div class="flex gap-2.5">
-          <%= link_to edit_contact_path(contact), class: "flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold text-gray-700 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all shadow-sm", data: { turbo: false } do %>
-            Edit
-          <% end %>
-          <%= link_to contact_path(contact), data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' }, class: "flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold text-red-600 bg-red-50/50 border border-red-100 rounded-xl hover:bg-red-50 transition-all" do %>
-            Delete
-          <% end %>
-        </div>
-      </div>
-    <% end %>
-  <% end %>
-</div>
+      <% if @contacts.first_page? %>
+        <span class="px-3 py-1.5 text-xs font-medium text-gray-400 bg-gray-50 border border-gray-200 rounded-lg cursor-not-allowed">
+          Prev
+        </span>
+      <% else %>
+        <%= link_to_prev_page @contacts, "Prev",
+          class: "px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg transition hover:bg-gray-50" %>
+      <% end %>
+
+      <span class="px-2 text-xs font-semibold text-gray-500">
+        <%= @contacts.current_page %> / <%= @contacts.total_pages %>
+      </span>
+
+      <% if @contacts.last_page? %>
+        <span class="px-3 py-1.5 text-xs font-medium text-gray-400 bg-gray-50 border border-gray-200 rounded-lg cursor-not-allowed">
+          Next
+        </span>
+      <% else %>
+        <%= link_to_next_page @contacts, "Next",
+          class: "px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg transition hover:bg-gray-50" %>
+      <% end %>
+
+    </div>
 
   </div>
-<% end %>
+
+  <%# Stats Card %>
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+    <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
+
+      <div>
+        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          Total Contacts
+        </div>
+        <div id="contacts_count" class="text-3xl font-bold text-gray-900 mt-1">
+          <%= current_user.contacts.count %>
+        </div>
+      </div>
+
+      <div class="p-3 bg-gray-50 rounded-xl">
+        <span class="text-gray-400 text-lg">👥</span>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+  <%# Main Contacts List (Turbo Frame) %>
+<%= render 'contacts_table' %>
 </div>
