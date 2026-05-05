@@ -1,0 +1,135 @@
+<div class="flex h-screen w-full overflow-hidden" data-controller="admin-selection">
+  <div class="flex-1 flex flex-col min-w-0 border-r border-gray-100">
+    <div class="p-8 pb-4">
+      <div class="flex items-start justify-between mb-8">
+        <!-- Search Bar -->
+        <%= form_with url: admins_path, method: :get,
+          data: { 
+            controller: "search", 
+            action: "input->search#submit", 
+            turbo_frame: "database_table" 
+          } do |f| %>
+          <%= hidden_field_tag :tab, params[:tab] %>
+          <div class="relative max-w-sm">
+            <%= f.text_field :query,
+              value: params[:query],
+              placeholder: "Search #{params[:tab] == 'users' ? 'users' : 'contacts'}...",
+              autocomplete: "off",
+              class: "block w-full pl-10 pr-3 py-2 bg-gray-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-emerald-500" %>
+          </div>
+        <% end %>
+
+
+
+        <!-- Create Actions (Swappable) -->
+        <div class="flex gap-3">
+          <div data-admin-selection-target="createActions" class="flex gap-3">
+            <%= link_to new_admin_path, class: "flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-bold rounded-lg hover:bg-gray-50 transition-all shadow-sm" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
+              New User
+            <% end %>
+            <%= link_to new_contact_path, class: "flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-lg hover:bg-emerald-700 transition-all shadow-md shadow-emerald-100" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+              Add Contact
+            <% end %>
+          </div>
+          <!-- Bulk Actions (Hidden by default) -->
+          <div data-admin-selection-target="bulkActions" class="hidden flex gap-3">
+            <div class="relative" data-controller="dropdown">
+              <button type="button" data-action="dropdown#toggle" class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-bold rounded-lg shadow-sm">
+                Export <span data-admin-selection-target="count"></span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" /></svg>
+              </button>
+              <div data-dropdown-target="menu" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-lg shadow-xl z-50">
+                <%= button_tag "Export Selected", type: "submit", name: "admin_bulk_action", value: "export_selected", form: "admin-bulk-actions-form", class: "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50" %>
+                <%= link_to "Export All Contacts", bulk_manage_admins_path(admin_bulk_action: "export_all", format: :csv), class: "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50" %>
+              </div>
+            </div>
+            <%= button_tag type: "submit", name: "admin_bulk_action", value: "delete", form: "admin-bulk-actions-form", 
+                data: { turbo_confirm: "Are you sure you want to delete selected contacts?" },
+                class: "inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-red-600 bg-red-50 border border-red-100 rounded-lg hover:bg-red-100 transition-all" do %>
+              Delete <span data-admin-selection-target="count"></span>
+            <% end %>
+          </div>
+        </div>
+
+		  
+      </div>
+
+
+
+
+
+
+		
+      <div class="flex gap-10 border-b border-gray-100">
+        <%= link_to "Contacts", admins_path(tab: 'contacts'), data: { turbo_frame: "_top" }, class: "pb-4 text-sm font-bold #{params[:tab] != 'users' ? 'text-emerald-500 border-b-2 border-emerald-500' : 'text-gray-300 hover:text-gray-500'}" %>
+        <%= link_to "Users", admins_path(tab: 'users'), data: { turbo_frame: "_top" }, class: "pb-4 text-sm font-bold #{params[:tab] == 'users' ? 'text-emerald-500 border-b-2 border-emerald-500' : 'text-gray-300 hover:text-gray-500'}" %>
+      </div>
+    </div>
+    <%= turbo_frame_tag "database_table" do %>
+      <% if params[:tab] == 'users' %>
+        <%= render "users_table" %>
+      <% else %>
+        <%= form_with url: bulk_manage_admins_path, method: :post, id: "admin-bulk-actions-form" do %>
+          <%= render "contacts_table" %>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+  <aside class="<%= 'hidden' if params[:tab] == 'users' %> w-96 h-[88%] flex flex-col bg-white border-l border-gray-100 overflow-auto">
+    <%= turbo_frame_tag "profile_sidebar" do %>
+      <!-- Default state -->
+      <div class="p-8 flex flex-col items-center text-center">
+        <span class="text-xs font-bold text-gray-300 tracking-widest mb-4">No Contact Selected</span>
+        <div class="h-48 w-48 rounded-full bg-gray-50 border-8 border-gray-50 shadow-inner mb-6 overflow-hidden flex items-center justify-center">
+          <svg class="h-24 w-24 text-gray-200" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-400 italic text-emerald-900/20">Select a record</h2>
+        <p class="text-sm font-normal text-gray-400 italic">Select a record to view details</p>
+      </div>
+    <% end %>
+  </aside>
+</div>
+#Pagination Controls (Only show if there are records to paginate through)
+<div>
+  <% active_collection = (@tab == 'users' ? @users : @all_contacts) %>
+  <% if active_collection.present? %>
+    <div class="fixed bottom-6 left-8 flex items-center gap-2 p-2 bg-white/80 backdrop-blur-md border border-gray-200 rounded-xl shadow-lg z-50">
+      <%# Previous Page %>
+      <% if active_collection.first_page? %>
+        <span class="px-3 py-1.5 text-xs font-medium text-gray-300 bg-gray-50 border border-transparent rounded-lg cursor-not-allowed">
+          Prev
+        </span>
+      <% else %>
+        <%= link_to_prev_page active_collection, "Prev",
+        params: { tab: @tab },
+        class: "px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg transition-all hover:bg-gray-50 hover:shadow-sm active:scale-95" %>
+      <% end %>
+      <%# Page Indicator %>
+      <div class="px-3 py-1 text-[10px] uppercase tracking-wider font-bold text-gray-500 bg-gray-100 rounded-full">
+        <%= active_collection.current_page %>
+        <span class="text-gray-400 mx-0.5">/</span>
+        <%= active_collection.total_pages %>
+      </div>
+      <%# Next Page %>
+      <% if active_collection.last_page? %>
+        <span class="px-3 py-1.5 text-xs font-medium text-gray-300 bg-gray-50 border border-transparent rounded-lg cursor-not-allowed">
+          Next
+        </span>
+      <% else %>
+        <%= link_to_next_page active_collection, "Next",
+        params: { tab: @tab },
+        class: "px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg transition-all hover:bg-gray-50 hover:shadow-sm active:scale-95" %>
+      <% end %>
+      <%# Results Info %>
+      <div class="text-xs font-medium text-gray-500 ml-5 pr-8">
+        Showing <%= active_collection.offset_value + 1 %>
+        to <%= [active_collection.offset_value + active_collection.limit_value, active_collection.total_count].min %>
+        <%= @tab %>
+      </div>
+    </div>
+  <% end %>
+</div>

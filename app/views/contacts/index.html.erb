@@ -1,109 +1,67 @@
-<div class="max-w-7xl mx-auto px-6 py-8">
-
- <%# Page Header + Toolbar %>
-<div class="mb-10 space-y-6">
-
-  <%# Top Row: Title + Actions %>
-  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-
-    <%# Title Block %>
-    <div class="space-y-1">
-      <h1 class="text-3xl font-bold tracking-tight text-gray-900">
-        My Contacts
-      </h1>
-      <p class="text-sm text-gray-500">
-        Manage, organize, and export your address book
-      </p>
-    </div>
-
-    <%# Actions %>
-    <div class="flex items-center gap-3">
-
-           <%# Add Contact %>
-      <%= link_to new_contact_path,
-        class: "inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 rounded-xl shadow-md shadow-indigo-200 transition-all hover:bg-indigo-700 hover:shadow-lg active:scale-[0.98]" do %>
-
-        <span class="text-lg leading-none">+</span>
-        <span>Add Contact</span>
-
-      <% end %>
-
-    </div>
-  </div>
-
-  <%# Toolbar Card (Search + Pagination) %>
-  <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-
-    <%# Search %>
-    <div class="relative w-full max-w-sm">
-      
-
-      <%= form_with url: contacts_path,
-        method: :get,
-        data: { controller: "search", action: "input->search#submit", turbo_frame: "contacts_list" } do |f| %>
-
-        <%= f.text_field :query,
-          value: params[:query],
-          placeholder: "Search contacts...",
-          autocomplete: "off",
-          class: "w-full pl-10 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl transition focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white" %>
-
-      <% end %>
-    </div>
-
-    <%# Pagination %>
-    <div class="flex items-center gap-2">
-
-      <% if @contacts.first_page? %>
-        <span class="px-3 py-1.5 text-xs font-medium text-gray-400 bg-gray-50 border border-gray-200 rounded-lg cursor-not-allowed">
-          Prev
-        </span>
-      <% else %>
-        <%= link_to_prev_page @contacts, "Prev",
-          class: "px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg transition hover:bg-gray-50" %>
-      <% end %>
-
-      <span class="px-2 text-xs font-semibold text-gray-500">
-        <%= @contacts.current_page %> / <%= @contacts.total_pages %>
-      </span>
-
-      <% if @contacts.last_page? %>
-        <span class="px-3 py-1.5 text-xs font-medium text-gray-400 bg-gray-50 border border-gray-200 rounded-lg cursor-not-allowed">
-          Next
-        </span>
-      <% else %>
-        <%= link_to_next_page @contacts, "Next",
-          class: "px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg transition hover:bg-gray-50" %>
-      <% end %>
-
-    </div>
-
-  </div>
-
-  <%# Stats Card %>
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-
-    <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
-
-      <div>
-        <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-          Total Contacts
-        </div>
-        <div id="contacts_count" class="text-3xl font-bold text-gray-900 mt-1">
-          <%= current_user.contacts.count %>
+<div class="max-w-7xl mx-auto px-6 py-8  h-screen  ">
+  <%# Main wrapper: Stacks on mobile, justify-between on desktop %>
+  <div class=" flex flex-col lg:flex-row lg:items-center md:flex-row md:items-center md:items-center justify-between gap-6 mb-6">
+    <%# Left/Top Block: Title, Stats, and Search %>
+    <div class="space-y-6 w-full lg:max-w-2xl">
+      <%# Title Row %>
+      <div class="space-y-1">
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900">
+          My Contacts
+        </h1>
+        <p class="text-sm text-gray-500">
+          Manage, organize, and export your address book
+        </p>
+      </div>
+      <%# Stats Card - remains flexible %>
+      <div class="w-full max-w-sm sm:max-w-xs">
+        <%# Removed fixed pixel widths; used w-full and max-width constraints instead %>
+        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm flex items-center justify-between w-full">
+          <div>
+            <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              Total Contacts
+            </div>
+            <div id="contacts_count" class="text-3xl font-bold text-gray-900 mt-1">
+              <%= current_user.contacts.count %>
+            </div>
+          </div>
+          <div class="p-3 bg-gray-50 rounded-xl">
+            <span class="text-gray-400 text-lg">👥</span>
+          </div>
         </div>
       </div>
-
-      <div class="p-3 bg-gray-50 rounded-xl">
-        <span class="text-gray-400 text-lg">👥</span>
+      <%# Search Bar - Full width on mobile, constrained on desktop %>
+      <div class="relative w-full max-w-sm">
+        <%= form_with url: contacts_path, method: :get,
+          data: { controller: "search", action: "input->search#submit", turbo_frame: "contacts_list" } do |f| %>
+          <%= f.text_field :query,
+            value: params[:query],
+            placeholder: "Search contacts...",
+            autocomplete: "off",
+            class: "w-full pl-10 pr-4 py-2.5 text-sm bg-gray-50 border border-gray-200 rounded-xl transition focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 focus:bg-white" %>
+        <% end %>
       </div>
-
     </div>
-
+    <div class="flex items-center gap-3 bg-white border border-gray-200 p-1.5 rounded-xl shadow-sm self-start lg:self-center" data-controller="counter">
+      <span class="pl-2 text-[10px] font-bold uppercase tracking-wider text-gray-400">Show</span>
+      <div class="flex h-[36px] items-center border border-gray-100 rounded-lg overflow-hidden bg-gray-50">
+        <button type="button" 
+              data-action="click->counter#decrement"
+          class="px-3 py-1 hover:bg-gray-200 text-gray-600 transition-colors border-r border-gray-100 font-bold select-none">-</button>
+        <%= form_with url: contacts_path, method: :get, 
+                    data: { counter_target: "form", turbo_frame: "contacts_list", turbo_action: "advance" }, class: "w-20" do |f| %>
+          <%= f.hidden_field :query, value: params[:query] %>
+          <%= f.text_field :per_page, 
+            value: @per_page, 
+            readonly: true,
+            data: { counter_target: "input" },
+            class: "w-10 border-none bg-transparent text-center text-sm font-bold focus:ring-0 p-0 cursor-default" %>
+        <% end %>
+        <button type="button" 
+              data-action="click->counter#increment"
+          class="px-3 py-1 hover:bg-gray-200 text-gray-600 transition-colors border-l border-gray-100 font-bold select-none">+</button>
+      </div>
+    </div>
   </div>
-
-</div>
-
   <%# Main Contacts List (Turbo Frame) %>
-<%= render 'contacts_table' %>
+  <%= render 'contacts_table' %>
 </div>

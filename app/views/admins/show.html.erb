@@ -1,0 +1,54 @@
+<%= turbo_frame_tag "profile_sidebar" do %>
+  <div class="p-8">
+    <div class="flex flex-col items-center text-center mb-10">
+      <span class="text-xs font-bold text-gray-300 tracking-widest mb-4">SC<%= @contact.id %>00</span>
+      <div class="h-48 w-48 rounded-full border-8 border-gray-100 shadow-xl mb-6 overflow-hidden bg-emerald-500 flex items-center justify-center text-white text-6xl font-bold">
+         <%= @contact.first_name[0] %>
+      </div>
+      <h2 class="text-3xl font-bold text-gray-900 mb-1"><%= @contact.first_name %> <%= @contact.last_name %></h2>
+      <p class="text-gray-400 font-medium">Contact Record</p>
+
+         </div>
+
+    <div class="space-y-8">
+      <section>
+        <h3 class="text-sm font-bold text-gray-900 mb-2">About</h3>
+        <p class="text-sm text-gray-500 leading-relaxed">
+          System managed contact record. Created by <%= @contact.user.username %> on <%= @contact.created_at.strftime("%B %d, %Y") %>.
+        </p>
+      </section>
+
+      <div class="grid grid-cols-2 gap-y-8">
+        
+        <div>
+          <h4 class="text-xs font-bold text-gray-300 uppercase mb-1">Date Created</h4>
+          <p class="text-sm font-semibold text-gray-700"><%= @contact.created_at.strftime("%d %B %Y") %></p>
+        </div>
+        <div>
+          <h4 class="text-xs font-bold text-gray-300 uppercase mb-1">Phone</h4>
+          <p class="text-sm font-semibold text-gray-700"><%= @contact.phone_number %></p>
+        </div>
+      </div>
+
+      <div class="pt-10 space-y-4 border-t border-gray-50">
+  <%# Delete Button - Red Palette %>
+  <%= button_to contact_path(@contact), 
+                method: :delete, 
+                data: { turbo_confirm: "Are you sure you want to delete #{@contact.first_name} #{@contact.last_name}?" }, 
+                class: "w-full py-3.5 bg-red-50 text-red-600 text-sm font-bold rounded-xl hover:bg-red-100 hover:text-red-700 transition-all duration-200 cursor-pointer" do %>
+    Delete Contact
+  <% end %>
+
+  <%# Edit Button - Emerald Palette %>
+  <%= link_to edit_contact_path(@contact), 
+              data: { turbo_frame: "_top" }, 
+              class: "block w-full py-3.5 bg-emerald-50 text-emerald-600 text-sm font-bold rounded-xl text-center hover:bg-emerald-100 hover:text-emerald-700 transition-all duration-200" do %>
+    Edit Contact
+  <% end %>
+</div>
+    </div>
+  </div>
+<% end %>
+
+
+

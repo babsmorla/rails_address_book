@@ -1,0 +1,67 @@
+<%# This partial renders a table of contacts with bulk action checkboxes linked to the admin-selection controller %>
+<div class="flex-1 overflow-y-auto px-8">
+  <%= form_with url: bulk_manage_admins_path, method: :post, id: "admin-bulk-actions-form" do |f| %>
+
+
+  
+    <table class="w-full text-left">
+      <thead>
+        <tr class="text-gray-900 text-sm font-bold border-b border-gray-50">
+          <th class="py-4 pl-4">
+            <%# Header Checkbox: Toggles all rows %>
+            <%= check_box_tag "select_all", 1, false, 
+                data: { 
+                  admin_selection_target: "selectAll", 
+                  action: "change->admin-selection#toggleAll" 
+                }, 
+                class: "rounded border-gray-300 text-emerald-600 focus:ring-emerald-500" %>
+          </th>
+          <th class="py-4">Name</th>
+          <th class="py-4">ID</th>
+          <th class="py-4">Owner</th>
+          <th class="py-4">Phone</th>
+          <th class="py-4">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="text-sm bg-white">
+        <% @all_contacts.each do |contact| %>
+          <tr id="<%= dom_id(contact) %>" class="group hover:text-emerald-500 cursor-pointer border-b border-gray-50">
+            <td class="py-3 pl-4">
+              <%# Individual Row Checkbox %>
+              <%= check_box_tag "contact_ids[]", contact.id, false, 
+                  data: { 
+                    admin_selection_target: "checkbox", 
+                    action: "change->admin-selection#updateUI" 
+                  }, 
+                  class: "rounded border-gray-300 text-emerald-600 focus:ring-emerald-500" %>
+            </td>
+            <td class="py-3">
+              <div class="flex items-center gap-3">
+                <%= link_to admin_path(contact.id), 
+                    data: { turbo_frame: "profile_sidebar" }, 
+                    class: "font-semibold" do %>
+                  <%= contact.first_name %> <%= contact.last_name %>
+                <% end %>
+              </div>
+            </td>
+            <td class="py-3 text-gray-500 group-hover:text-emerald-500">SC<%= contact.id %>00</td>
+            <td class="py-3 text-gray-500 group-hover:text-emerald-500"><%= contact.user.username %></td>
+            <td class="py-3 text-gray-500 group-hover:text-emerald-500"><%= contact.phone_number %></td>
+            <td class="py-3 text-gray-500 group-hover:text-emerald-500">
+              <div class="flex gap-4">
+                <%= link_to 'Edit', edit_contact_path(contact), 
+                    data: { turbo_frame: "_top" }, 
+                    class: "text-blue-500 hover:text-blue-700 font-medium" %>
+                <span>
+                  <%= link_to 'Delete', contact_path(contact), 
+    data: { turbo_method: :delete, turbo_confirm: "Are you sure?" }, 
+    class: "text-red-500 hover:text-red-700" %>
+                </span>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>

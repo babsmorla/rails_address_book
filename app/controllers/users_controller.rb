@@ -8,15 +8,30 @@ class UsersController < ApplicationController
     @user = User.new
   end
 
-  def create
+ def create
+  # Use .dig to safely check for the role code in the flat structure f.select creates
+  role_provided = params.dig(:user, :admin_role_code)
+
+  if current_user&.admin? && role_provided.present?
+    # Admin is allowed to pass the role_code through user_params
     @user = User.new(user_params)
-    if @user.save
-      session[:user_id] = @user.id
-      redirect_to contacts_path, notice: "Welcome to the addresbook portal"
-    else
-      render :new
-    end
+  else
+    # Regular signup or missing role: strip the role_code and force 'usr'
+    @user = User.new(user_params.except(:admin_role_code))
+    @user.admin_role_code = "usr"
   end
+
+  if @user.save
+    if current_user&.admin?
+      redirect_to admins_path, notice: "User created successfully"
+    else
+      # status: :see_other is required for Turbo redirects after a POST
+      redirect_to new_session_path, notice: "Account created successfully. Please log in.", status: :see_other
+    end
+  else
+    render :new, status: :unprocessable_entity
+  end
+end
 
   def change_password
   end

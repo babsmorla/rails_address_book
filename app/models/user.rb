@@ -12,6 +12,18 @@ class User < ApplicationRecord
             },
             if: -> { password.present? }
 
+            belongs_to :admin_role,
+             class_name: "Admin",
+             foreign_key: :admin_role_code,
+             primary_key: :role_code,
+             optional: true
+
+             before_validation :assign_default_role, on: :create
+
+  def admin?
+    admin_role_code == "adm"
+  end
+
   def generate_password_token!
     self.reset_password_token = generate_token
     self.reset_password_sent_at = Time.current
@@ -19,7 +31,6 @@ class User < ApplicationRecord
   end
 
   def password_token_valid?
-    
     (self.reset_password_sent_at + 1.hour) > Time.current
   end
 
@@ -33,5 +44,9 @@ class User < ApplicationRecord
 
   def generate_token
     SecureRandom.hex(10)
+  end
+
+  def assign_default_role
+    self.admin_role_code = "usr" if admin_role_code.nil?
   end
 end

@@ -18,6 +18,25 @@
             placeholder: "e.g. Rice", 
             class: "bg-place block w-full px-4 py-3 rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-gray-400" %>
       </div>
+ <% if current_user.admin? %>
+      <div class="flex flex-col gap-1.5 md:col-span-2">
+         <%= f.label :user_id, "Assign to User",class: "text-sm font-semibold text-gray-700"  %>
+          <%= f.collection_select :user_id, User.where(admin_role_code: 'usr'), :id, :username, { prompt: "Select a standard user" }, { class: "bg-place block w-full px-4 py-3 rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all placeholder:text-gray-400" } %>
+       
+      </div>
+        <% end %>
+
+
+ 
+    
+   
+
+   
+   
+  
+
+
+
     </div>
 
     <div class="flex flex-col gap-1.5">
@@ -36,7 +55,11 @@
     </div>
 
     <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
-      <%= link_to 'Cancel', contacts_path, class: "px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors" %>
+        <% if current_user.admin? %>
+          <%= link_to "Cancel", admins_path, class: "px-6 py-2.5 bg-gray-200 text-gray-700 text-sm font-semibold rounded-xl shadow-md hover:bg-gray-300 focus:ring-4 focus:ring-gray-300/30 transition-all" %>
+        <% else %>
+          <%= link_to "Cancel", contacts_path, class: "px-6 py-2.5 bg-gray-200 text-gray-700 text-sm font-semibold rounded-xl shadow-md hover:bg-gray-300 focus:ring-4 focus:ring-gray-300/30 transition-all" %>    
+        <% end %>
       <%= f.submit "Save Contact", 
           class: "px-6 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-xl shadow-md hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-500/30 transition-all cursor-pointer" %>
     </div>

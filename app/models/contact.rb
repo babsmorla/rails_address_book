@@ -25,5 +25,4 @@ class Contact < ApplicationRecord
     end
   end
   end
-
 end
