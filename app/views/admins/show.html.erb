@@ -41,7 +41,7 @@
 
   <%# Edit Button - Emerald Palette %>
   <%= link_to edit_contact_path(@contact), 
-              data: { turbo_frame: "_top" }, 
+              data: { turbo_frame: "modal" }, 
               class: "block w-full py-3.5 bg-emerald-50 text-emerald-600 text-sm font-bold rounded-xl text-center hover:bg-emerald-100 hover:text-emerald-700 transition-all duration-200" do %>
     Edit Contact
   <% end %>

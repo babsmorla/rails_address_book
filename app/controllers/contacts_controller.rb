@@ -4,12 +4,13 @@ class ContactsController < ApplicationController
 
   layout :determine_layout
 
-
+  # GET /contacts or /admins
   def index
     @per_page = (params[:per_page] || 10).to_i.clamp(1, 100)
-   query_scope = current_user.contacts.order(:first_name)
+    
+    # Define scope: users see their own, admins see their own (or all via AdminController)
+    query_scope = current_user.contacts.order(first_name: :asc)
 
-    # 2. Apply search filters if present
     if params[:query].present?
       search_query = "%#{params[:query]}%"
       query_scope = query_scope.where(
@@ -18,58 +19,30 @@ class ContactsController < ApplicationController
       )
     end
 
-    # 3. Handle different formats
     respond_to do |format|
       format.html do
         @contacts = query_scope.page(params[:page]).per(@per_page)
         render layout: false if turbo_frame_request?
       end
-
       format.csv do
         @contacts = query_scope
         send_data @contacts.to_csv, filename: "contacts-#{Date.today}.csv"
       end
     end
-end
-
-
-def bulk_actions
-  # 1. Determine Scope: Admins see all, Users see theirs
-  scope = current_user.admin? ? Contact : current_user.contacts
-  @contacts = scope.where(id: params[:contact_ids])
-
-  case params[:bulk_action]
-  when "delete"
-    count = @contacts.count
-    @contacts.destroy_all
-
-    return_path = current_user.admin? ? admins_path(tab: "contacts") : contacts_path
-    redirect_to return_path, notice: "Successfully deleted #{count} contacts."
-
-  when "export"
-    
-    send_data @contacts.to_csv, filename: "contacts_export_#{Date.today}.csv"
-
-  else
-    return_path = current_user.admin? ? admins_path(tab: "contacts") : contacts_path
-    redirect_to return_path, alert: "Please select an action and contacts."
-  end
-end
-
-
-
-  def show
   end
 
+  # GET /contacts/new
   def new
-  @contact = Contact.new
-  respond_to do |format|
-    format.html
-    format.turbo_stream { render layout: "modal" }
-  end
-render layout: false if params[:turbo_frame].present?
+    @contact = Contact.new
+    respond_to do |format|
+      # If requested via Turbo Frame, don't render the site-wide layout
+      format.html { render layout: false if turbo_frame_request? }
+      # If requested via Turbo Stream, use the modal layout shell
+      format.turbo_stream { render layout: "modal" }
+    end
   end
 
+  # POST /contacts
   def create
     if current_user.admin? && params[:contact][:user_id].present?
       @contact = Contact.new(contact_params)
@@ -78,68 +51,97 @@ render layout: false if params[:turbo_frame].present?
     end
 
     if @contact.save
-      if current_user.admin?
-        redirect_to admins_path, notice: "Contact created successfully"
-      else
-      redirect_to contacts_path, notice: "Contact created successfully."
+      target_path = current_user.admin? ? admins_path : contacts_path
+      
+      respond_to do |format|
+        format.html { redirect_to target_path, notice: "Contact created successfully", status: :see_other }
+        # status: :see_other (303) is required for Turbo to redirect properly after a POST
+        format.turbo_stream { redirect_to target_path, notice: "Contact created successfully", status: :see_other }
       end
     else
-      render :new, status: :unprocessable_entity
+      respond_to do |format|
+        format.html { render :new, status: :unprocessable_entity }
+      end
     end
   end
 
+  # GET /contacts/1/edit
   def edit
+    respond_to do |format|
+      format.html { render layout: false if turbo_frame_request? }
+    end
   end
 
+  # PATCH/PUT /contacts/1
   def update
     if @contact.update(contact_params)
-      if current_user.admin?
-        redirect_to admins_path, notice: "Contact updated successfully"
-      else
-      redirect_to contacts_path, notice: "Contact updated successfully", status: :see_other
+      target_path = current_user.admin? ? admins_path : contacts_path
+      
+      respond_to do |format|
+        format.html { redirect_to target_path, notice: "Updated successfully", status: :see_other }
+        format.turbo_stream { redirect_to target_path, notice: "Updated successfully", status: :see_other }
       end
     else
-      render :edit, status: :unprocessable_entity
+      respond_to do |format|
+        format.html { render :edit, status: :unprocessable_entity }
+      end
     end
   end
 
-def destroy
-  target_path = if current_user.admin?
-                  admins_path
-  else
-                  contacts_path
+  # GET /contacts/1
+  def show
   end
 
-  # 2. Perform the deletion
-  if @contact.destroy
-    respond_to do |format|
-      format.html { redirect_to target_path, notice: "Contact deleted.", status: :see_other }
-      format.turbo_stream { flash.now[:notice] = "Contact deleted." }
+  # DELETE /contacts/1
+  def destroy
+    target_path = current_user.admin? ? admins_path : contacts_path
+
+    if @contact.destroy
+      respond_to do |format|
+        format.html { redirect_to target_path, notice: "Contact deleted.", status: :see_other }
+        format.turbo_stream { flash.now[:notice] = "Contact deleted." }
+      end
+    else
+      redirect_to target_path, alert: "Failed to delete contact.", status: :see_other
     end
-  else
-    redirect_to target_path, alert: "Failed to delete contact."
   end
-end
 
+  # POST /contacts/bulk_actions
+  def bulk_actions
+    scope = current_user.admin? ? Contact : current_user.contacts
+    @contacts = scope.where(id: params[:contact_ids])
+
+    case params[:bulk_action]
+    when "delete"
+      count = @contacts.count
+      @contacts.destroy_all
+      return_path = current_user.admin? ? admins_path(tab: "contacts") : contacts_path
+      redirect_to return_path, notice: "Successfully deleted #{count} contacts.", status: :see_other
+
+    when "export"
+      send_data @contacts.to_csv, filename: "contacts_export_#{Date.today}.csv"
+
+    else
+      return_path = current_user.admin? ? admins_path(tab: "contacts") : contacts_path
+      redirect_to return_path, alert: "Please select an action and contacts.", status: :see_other
+    end
+  end
 
   private
 
-
   def set_contact
-    if current_user.admin?
-      @contact = Contact.find(params[:id])
-    else
-      @contact = current_user.contacts.find(params[:id])
-    end
-
-    
+    scope = current_user.admin? ? Contact : current_user.contacts
+    @contact = scope.find(params[:id])
   rescue ActiveRecord::RecordNotFound
-    redirect_to contacts_path, alert: "Contact not found or unauthorized."
+    redirect_to (current_user.admin? ? admins_path : contacts_path), 
+                alert: "Contact not found.", 
+                status: :see_other
   end
 
   def contact_params
     params.require(:contact).permit(:first_name, :last_name, :phone_number, :user_id)
   end
+
   def require_login
     unless current_user
       flash[:alert] = "You must be logged in to access this section"
