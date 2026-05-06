@@ -8,15 +8,10 @@ class AdminsController < ApplicationController
 
 
 def index
-  @per_page = (params[:per_page] || 10).to_i.clamp(1, 100)
+ @per_page = (params[:per_page] || 10).to_i.clamp(1, 100)
   @tab = params[:tab] || "contacts"
-  
-  # 1. Capture the current direction
   @sort_direction = params[:sort] == "asc" ? "asc" : "desc"
-  
-  # 2. CALCULATE THE OPPOSITE: This is what the link will point to
   @next_direction = (@sort_direction == "asc" ? "desc" : "asc")
-  
   query_str = "%#{params[:query]}%" if params[:query].present?
 
   if @tab == "users"
@@ -25,6 +20,9 @@ def index
     @users = @users.order(username: @sort_direction).page(params[:page]).per(@per_page)
   else
     @all_contacts = Contact.includes(:user).left_outer_joins(:user)
+    if params[:owner_id].present?
+      @all_contacts = @all_contacts.where(user_id: params[:owner_id])
+    end
     if query_str
       @all_contacts = @all_contacts.where(
         "contacts.first_name ILIKE ? OR contacts.last_name ILIKE ? OR contacts.phone_number ILIKE ? OR users.username ILIKE ?",
@@ -33,6 +31,7 @@ def index
     end
     @all_contacts = @all_contacts.order(first_name: @sort_direction).page(params[:page]).per(@per_page)
   end
+  @owners = User.where(id: Contact.select(:user_id).distinct).order(:username)
 end
 
 

@@ -7,21 +7,38 @@
               data: { 
                 controller: "search", 
                 action: "input->search#submit", 
-                turbo_frame: "database_table" 
+                turbo_frame: "database_table"
               } do |f| %>
-          <%= hidden_field_tag :tab, @tab %>
-          <%# THIS LINE IS VITAL: keeps the sort direction when searching %>
+          <%= hidden_field_tag :tab, params[:tab] %>
           <%= hidden_field_tag :sort, @sort_direction %>
-          <div class="relative max-w-sm">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-            </div>
-            <%= f.text_field :query,
-                  value: params[:query],
-                  placeholder: "Search #{params[:tab] == 'users' ? 'users' : 'contacts'}...",
-                  autocomplete: "off",
-                  class: "block w-full pl-10 pr-3 py-2 bg-gray-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-emerald-500" %>
-          </div>
+          <%= hidden_field_tag :query, params[:query] %>
+         <div class="flex items-center gap-3">
+  <!-- Search Bar -->
+  <div class="relative w-64"> <%# Set a fixed width or use flex-1 %>
+    
+    <%= f.text_field :query,
+          value: params[:query],
+          placeholder: "Search #{params[:tab] == 'users' ? 'users' : 'contacts'}...",
+          autocomplete: "off",
+          class: "block w-full h-10 pl-10 pr-3 bg-gray-100 border border-transparent rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all" %>
+  </div>
+  <!-- Owner Filter Dropdown (Hidden if tab is users) -->
+  <% unless params[:tab] == 'users' %>
+    <div class="relative w-48"> <%# Match height with h-10 %>
+      <%= f.select :owner_id, 
+          options_from_collection_for_select(@owners, :id, :username, params[:owner_id]), 
+          { include_blank: "Search by Owner" }, 
+          { 
+            class: "block w-full h-10 pl-3 pr-10 bg-white border border-transparent rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 appearance-none cursor-pointer hover:bg-gray-200 transition-all",
+            data: { action: "change->search#submit" } 
+          } %>
+      <!-- Custom Chevron for the dropdown -->
+      <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+      </div>
+    </div>
+  <% end %>
+</div>
         <% end %>
         <!-- Action Buttons -->
         <div class="flex gap-3">
@@ -55,31 +72,31 @@
           </div>
         </div>
       </div>
-     <div class="flex items-center gap-3 justify-between mb-6">
-       <!-- Tab Navigation -->
-<div class="flex gap-10 border-b border-gray-100">
-  <%# Pass current query and sort when switching tabs %>
-  <%= link_to "Contacts", admins_path(tab: 'contacts', query: params[:query], sort: @sort_direction), 
+      <div class="flex items-center gap-3 justify-between mb-6">
+        <!-- Tab Navigation -->
+        <div class="flex gap-10 border-b border-gray-100">
+          <%# Pass current query and sort when switching tabs %>
+          <%= link_to "Contacts", admins_path(tab: 'contacts', query: params[:query], sort: @sort_direction), 
               class: "pb-4 text-sm font-bold #{params[:tab] != 'users' ? 'text-emerald-500 border-b-2 border-emerald-500' : 'text-gray-300 hover:text-gray-500'}" %>
-  <%= link_to "Users", admins_path(tab: 'users', query: params[:query], sort: @sort_direction), 
+          <%= link_to "Users", admins_path(tab: 'users', query: params[:query], sort: @sort_direction), 
               class: "pb-4 text-sm font-bold #{params[:tab] == 'users' ? 'text-emerald-500 border-b-2 border-emerald-500' : 'text-gray-300 hover:text-gray-500'}" %>
-</div>
-<!-- Sort Button -->
-<div class="flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-lg border border-gray-100"
+        </div>
+        <!-- Sort Button -->
+        <div class="flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-lg border border-gray-100"
      data-controller="sort"
      data-sort-current-dir-value="<%= @sort_direction %>"
      data-sort-frame-id-value="database_table">
-  <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Sort:</span>
-  <button type="button" 
+          <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Sort:</span>
+          <button type="button" 
           data-action="click->sort#toggle"
-    class="flex items-center gap-1 text-sm font-bold text-emerald-600 hover:text-emerald-700">
-    <span data-sort-label><%= @sort_direction == "asc" ? "A-Z" : "Z-A" %></span>
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-    </svg>
-  </button>
-</div>
-     </div>
+            class="flex items-center gap-1 text-sm font-bold text-emerald-600 hover:text-emerald-700">
+            <span data-sort-label><%= @sort_direction == "asc" ? "A-Z" : "Z-A" %></span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
     <!-- Table Content -->
     <%= turbo_frame_tag "database_table" do %>
