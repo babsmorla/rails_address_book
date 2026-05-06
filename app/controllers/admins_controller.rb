@@ -69,27 +69,30 @@ end
 
 
 def bulk_manage
-    # Ensure we are looking at Contacts, not Users
-    @contacts = Contact.where(id: params[:contact_ids])
+  @contacts = Contact.where(id: params[:contact_ids])
 
-    case params[:admin_bulk_action]
-    when "delete"
-      count = @contacts.count
-      @contacts.destroy_all
-      redirect_to admins_path(tab: "contacts"), notice: "Successfully deleted #{count} contacts."
+  case params[:admin_bulk_action]
+  when "delete"
+    count = @contacts.count
+    # destroy_all is better than delete_all as it handles callbacks/dependencies
+    @contacts.destroy_all 
     
-    when "export_selected"
-      # Using the to_csv method defined in your Contact model
-      send_data @contacts.to_csv, filename: "contacts_selected_#{Date.today}.csv"
+    # Use status: :see_other to force Turbo to refresh the page/list correctly
+    redirect_to admins_path(tab: "contacts"), 
+                notice: "Successfully deleted #{count} contacts.", 
+                status: :see_other
+    
+  when "export_selected"
+    send_data @contacts.to_csv, filename: "contacts_selected_#{Date.today}.csv"
       
-    when "export_all"
-      @all_contacts = Contact.all
-      send_data @all_contacts.to_csv, filename: "all_contacts_#{Date.today}.csv"
-    else
-      redirect_to admins_path(tab: "contacts"), alert: "Invalid action."
-    end
+  when "export_all"
+    send_data Contact.to_csv, filename: "all_contacts_#{Date.today}.csv"
+  else
+    redirect_to admins_path(tab: "contacts"), 
+                alert: "Invalid action.", 
+                status: :see_other
   end
-
+end
 
 
 def show

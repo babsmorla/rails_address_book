@@ -132,7 +132,7 @@
       <% if params[:tab] == 'users' %>
         <%= render "users_table" %>
       <% else %>
-        <%= form_with url: bulk_manage_admins_path, method: :post, id: "admin-bulk-actions-form" do %>
+        <%= form_with url: bulk_manage_admins_path, method: :post, id: "admin-bulk-actions-form", data: { action: "turbo:submit-end->admin-selection#reset" } do %>
           <%= render "contacts_table" %>
         <% end %>
       <% end %>

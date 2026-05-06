@@ -29,13 +29,11 @@
               data: { turbo_confirm: "Are you sure?" } %>
           </div>
         </header>
-        <% if notice.present? %>
-          <div popover="manual" class="flash" data-controller="flash">
-            <div class="flash__content">
-              <%= notice %>
-            </div>
-          </div>
-        <% end %>
+
+        
+       <div id="flash" class="z-50">
+  <%= render "layouts/flash" %>
+</div>
         <!-- CONTENT OUTLET -->
         <main class="flex-1 overflow-y-auto p-8">
           <div class="max-w-[90%] mx-auto">

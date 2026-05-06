@@ -1,0 +1,15 @@
+<%# app/views/layouts/_flash.html.erb %>
+<% if notice.present? %>
+  <div popover="manual" class="flash flash--notice" data-controller="flash">
+    <div class="flash__content">
+      <%= notice %>
+    </div>
+  </div>
+<% end %>
+<% if alert.present? %>
+  <div popover="manual" class="flash flash--alert" data-controller="flash">
+    <div class="flash__content">
+      <%= alert %>
+    </div>
+  </div>
+<% end %>

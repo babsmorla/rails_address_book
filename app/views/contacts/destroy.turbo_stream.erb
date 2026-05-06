@@ -6,7 +6,7 @@
   <%= current_user.contacts.count %>
 <% end %>
 
-
+<%# 3. Reset the profile sidebar to the empty state %>
 <%= turbo_stream.replace "profile_sidebar" do %>
   <%= turbo_frame_tag "profile_sidebar" do %>
     <div class="p-8 flex flex-col items-center text-center scrollbar-hidden">
@@ -20,4 +20,9 @@
       <p class="text-sm text-red-300 mt-2">The previous contact was removed successfully.</p>
     </div>
   <% end %>
+<% end %>
+
+<%# 4. Trigger the Flash Message popover %>
+<%= turbo_stream.update "flash" do %>
+  <%= render "layouts/flash" %>
 <% end %>

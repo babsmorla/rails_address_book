@@ -88,44 +88,59 @@ class ContactsController < ApplicationController
     end
   end
 
-  # GET /contacts/1
+
   def show
   end
 
-  # DELETE /contacts/1
+
   def destroy
-    target_path = current_user.admin? ? admins_path : contacts_path
+  target_path = current_user.admin? ? admins_path : contacts_path
 
-    if @contact.destroy
-      respond_to do |format|
-        format.html { redirect_to target_path, notice: "Contact deleted.", status: :see_other }
-        format.turbo_stream { flash.now[:notice] = "Contact deleted." }
-      end
-    else
-      redirect_to target_path, alert: "Failed to delete contact.", status: :see_other
+  if @contact.destroy
+    respond_to do |format|
+      # 1. Standard HTML: Uses standard flash for the next request (redirect)
+      format.html { redirect_to target_path, notice: "Contact deleted.", status: :see_other }
+      
+      # 2. Turbo Stream: Uses flash.now for the current request (render)
+      format.turbo_stream { flash.now[:notice] = "Contact deleted." }
+    end
+  else
+    # Handle failure gracefully
+    respond_to do |format|
+      format.html { redirect_to target_path, alert: "Failed to delete contact.", status: :see_other }
+      format.turbo_stream { flash.now[:alert] = "Failed to delete contact." }
     end
   end
+end
 
-  # POST /contacts/bulk_actions
   def bulk_actions
-    scope = current_user.admin? ? Contact : current_user.contacts
-    @contacts = scope.where(id: params[:contact_ids])
+  scope = current_user.admin? ? Contact : current_user.contacts
+  @contacts = scope.where(id: params[:contact_ids])
+  return_path = current_user.admin? ? admins_path(tab: "contacts") : contacts_path
 
-    case params[:bulk_action]
-    when "delete"
-      count = @contacts.count
-      @contacts.destroy_all
-      return_path = current_user.admin? ? admins_path(tab: "contacts") : contacts_path
-      redirect_to return_path, notice: "Successfully deleted #{count} contacts.", status: :see_other
+  case params[:bulk_action]
+  when "delete"
+    count = @contacts.count
+    @contacts.destroy_all
+    message = "Successfully deleted #{count} contacts."
+    
+    respond_to do |format|
+      format.html { redirect_to return_path, notice: message, status: :see_other }
+      # Turbo Stream allows us to redirect AND ensure the flash is handled
+      format.turbo_stream { redirect_to return_path, notice: message, status: :see_other }
+    end
 
-    when "export"
-      send_data @contacts.to_csv, filename: "contacts_export_#{Date.today}.csv"
+  when "export"
+    send_data @contacts.to_csv, filename: "contacts_export_#{Date.today}.csv"
 
-    else
-      return_path = current_user.admin? ? admins_path(tab: "contacts") : contacts_path
-      redirect_to return_path, alert: "Please select an action and contacts.", status: :see_other
+  else
+    message = "Please select an action and contacts."
+    respond_to do |format|
+      format.html { redirect_to return_path, alert: message, status: :see_other }
+      format.turbo_stream { redirect_to return_path, alert: message, status: :see_other }
     end
   end
+end
 
   private
 

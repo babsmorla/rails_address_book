@@ -50,13 +50,16 @@
         </div>
       </div>
     </nav>
-    <% if notice.present? %>
-      <div popover="manual" class="flash" data-controller="flash">
-        <div class="flash__content">
-          <%= notice %>
-        </div>
-      </div>
-    <% end %>
+
+    <div id="flash">
+  <%= render "layouts/flash" %>
+</div>
+
+    <div id="flash" class="z-50">
+  <%= render "layouts/flash" %>
+</div>
+
+
     <main id="main">
       <div class=" mx-auto  h-screen ">
         <%= yield %>

@@ -31,4 +31,17 @@ export default class extends Controller {
       if (this.hasSelectAllTarget) this.selectAllTarget.checked = false
     }
   }
+
+  reset() {
+    // 1. Clear all individual row checkboxes
+    this.checkboxTargets.forEach(cb => cb.checked = false)
+
+    // 2. Clear the master "Select All" checkbox
+    if (this.hasSelectAllTarget) {
+      this.selectAllTarget.checked = false
+    }
+
+    // 3. Update the UI visibility (Fix: called updateUI instead of update)
+    this.updateUI()
+  }
 }
