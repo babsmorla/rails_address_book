@@ -48,11 +48,14 @@
           <% end %>
           <%# Add Contact Button (Visible by default) %>
           <%= link_to new_contact_path,
-            data: { bulk_actions_target: "addButton", turbo: false },
-            class: "inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 rounded-xl shadow-md transition-all hover:bg-indigo-700 active:scale-95" do %>
-            <span class="text-lg">+</span>
-            <span>Add Contact</span>
-          <% end %>
+    data: { 
+      bulk_actions_target: "addButton", 
+      turbo_frame: "modal" # Removed turbo: false
+    },
+    class: "inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 rounded-xl shadow-md transition-all hover:bg-indigo-700 active:scale-95" do %>
+  <span class="text-lg">+</span>
+  <span>Add Contact</span>
+<% end %>
         </div>
       </div>
     

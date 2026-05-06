@@ -62,7 +62,12 @@ end
   end
 
   def new
-    @contact = Contact.new
+  @contact = Contact.new
+  respond_to do |format|
+    format.html
+    format.turbo_stream { render layout: "modal" }
+  end
+render layout: false if params[:turbo_frame].present?
   end
 
   def create
@@ -126,6 +131,8 @@ end
     else
       @contact = current_user.contacts.find(params[:id])
     end
+
+    
   rescue ActiveRecord::RecordNotFound
     redirect_to contacts_path, alert: "Contact not found or unauthorized."
   end

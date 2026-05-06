@@ -92,16 +92,18 @@
           <div data-admin-selection-target="createActions" class="flex gap-3">
             <% if params[:tab] == 'users' %>
               <%# Only show "New User" on the Users tab %>
-              <%= link_to new_admin_path, class: "flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-bold rounded-lg hover:bg-gray-50 transition-all shadow-sm" do %>
+              <%= link_to new_admin_path, data: { turbo_frame: "modal" }, class: "flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-bold rounded-lg hover:bg-gray-50 transition-all shadow-sm" do %>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
                 New User
               <% end %>
             <% else %>
               <%# Show "Add Contact" on the Contacts tab (default) %>
-              <%= link_to new_contact_path, class: "flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-lg hover:bg-emerald-700 transition-all shadow-md shadow-emerald-100" do %>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                Add Contact
-              <% end %>
+            <%= link_to new_contact_path, 
+    data: { turbo_frame: "modal" }, 
+    class: "flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-lg" do %>
+  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 4v16m8-8H4" stroke-width="2"/></svg>
+  Add Contact
+<% end %>
             <% end %>
           </div>
           <!-- Bulk Actions (Stimulus controlled) -->

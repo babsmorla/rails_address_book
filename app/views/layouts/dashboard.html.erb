@@ -1,69 +1,52 @@
 <!DOCTYPE html>
 <html>
- <head>
-  <title><%= content_for(:title) || "My Addressbook" %></title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <%= csrf_meta_tags %>
-  <%= csp_meta_tag %>
-
-  <%= yield :head %>
-
-  <%# Combine your primary styles here. Rails will handle the preloading correctly. %>
-  <%= stylesheet_link_tag :application, "tailwind", "inter-font", "application", "data-turbo-track": "reload" %>
-  
-  <%= javascript_importmap_tags %>
-
-  <link rel="icon" href="/icon.png" type="image/png">
-</head>
-
-
+  <head>
+    <title><%= content_for(:title) || "My Addressbook" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= yield :head %>
+    <%# Combine your primary styles here. Rails will handle the preloading correctly. %>
+    <%= stylesheet_link_tag :application, "tailwind", "inter-font", "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+    <link rel="icon" href="/icon.png" type="image/png">
+  </head>
   <body class="relative bg-gray-100 font-sans antialiased">
-  <div class=" fixed flex min-h-screen w-full overflow-hidden">
-    
-   
-
-    <!-- MAIN CONTENT WRAPPER -->
-    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
-      
-      <!-- TOP BAR (Inside Main) -->
-      <header class="bg-white shadow-sm h-16 px-8 flex justify-between items-center flex-shrink-0">
-        <div class="flex items-center">
-          <h1 class="text-lg font-semibold text-gray-800">Admin Pro</h1>
-        </div>
-        
-        <div class="flex items-center gap-4">
-          <span class="text-sm text-gray-600 font-medium">
-            Logged in as: <span class="text-indigo-600"><%= current_user.username %></span>
-          </span>
-          <%= button_to "Logout", new_session_path, method: :delete, 
+    <div class=" fixed flex min-h-screen w-full overflow-hidden">
+      <!-- MAIN CONTENT WRAPPER -->
+      <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <!-- TOP BAR (Inside Main) -->
+        <header class="bg-white shadow-sm h-16 px-8 flex justify-between items-center flex-shrink-0">
+          <div class="flex items-center">
+            <h1 class="text-lg font-semibold text-gray-800">Admin Pro</h1>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="text-sm text-gray-600 font-medium">
+              Logged in as: <span class="text-indigo-600"><%= current_user.username %></span>
+            </span>
+            <%= button_to "Logout", new_session_path, method: :delete, 
               class: "text-sm font-semibold text-red-500 hover:text-red-700 transition-colors",
               data: { turbo_confirm: "Are you sure?" } %>
-        </div>
-      </header>
-
-  <% if notice.present? %>
-  <div popover="manual" class="flash" data-controller="flash">
-    <div class="flash__content">
-      <%= notice %>
+          </div>
+        </header>
+        <% if notice.present? %>
+          <div popover="manual" class="flash" data-controller="flash">
+            <div class="flash__content">
+              <%= notice %>
+            </div>
+          </div>
+        <% end %>
+        <!-- CONTENT OUTLET -->
+        <main class="flex-1 overflow-y-auto p-8">
+          <div class="max-w-[90%] mx-auto">
+            <%# The 'yield' acts as your React <Outlet /> %>
+            <%= yield %>
+          </div>
+        </main>
+      </div>
     </div>
-  </div>
-<% end %>
 
-
-      <!-- CONTENT OUTLET -->
-      <main class="flex-1 overflow-y-auto p-8">
-        <div class="max-w-[90%] mx-auto">
-          <%# The 'yield' acts as your React <Outlet /> %>
-          <%= yield %>
-        </div>
-      </main>
-
-
-      
-
-    </div>
-  </div>
-
-  
-</body>
+      <%= turbo_frame_tag "modal" %>
+   
+  </body>
 </html>

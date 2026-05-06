@@ -103,6 +103,11 @@ end
   def new
     @user = User.new
     @user.build_admin_role
+    respond_to do |format|
+    format.html
+    format.turbo_stream { render layout: "modal" }
+  end
+render layout: false
   end
   
 def create

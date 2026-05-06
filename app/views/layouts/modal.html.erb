@@ -1,0 +1,16 @@
+<dialog 
+  data-modal-target="dialog" 
+  class="fixed inset-0 m-auto z-50 p-0 w-[90%] max-w-lg rounded-2xl border-none shadow-2xl backdrop:bg-gray-900/50 backdrop:backdrop-blur-sm"
+>
+  <div class="p-6 bg-white overflow-hidden">
+    <%# Header %>
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-xl font-bold text-gray-900">Add New Contact</h3>
+      <button data-action="modal#close" class="text-gray-400 hover:text-gray-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <%# Body (The Form) %>
+    <%= yield %>
+  </div>
+</dialog>

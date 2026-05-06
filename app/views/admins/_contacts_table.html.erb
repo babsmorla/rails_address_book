@@ -36,7 +36,12 @@
                   class: "rounded border-gray-300 text-emerald-600 focus:ring-emerald-500" %>
             </td>
             <td class="py-3">
+              
               <div class="flex items-center gap-3">
+                <div class="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold">
+  <%# Access the username via the associated user %>
+  <%= contact.user&.username&.first&.upcase || "?" %>
+</div>
                 <%= link_to admin_path(contact.id), 
                     data: { turbo_frame: "profile_sidebar" }, 
                     class: "font-semibold" do %>

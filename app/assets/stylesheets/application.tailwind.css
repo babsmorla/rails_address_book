@@ -22,6 +22,22 @@
 }
 
 
+/* application.tailwind.css */
+
+dialog[open] {
+  display: flex;
+  flex-direction: column;
+  /* This ensures the dialog doesn't stick to the top of the screen */
+  margin: auto;
+}
+
+/* Ensure the backdrop covers everything */
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+
 
 
 
