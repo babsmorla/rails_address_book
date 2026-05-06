@@ -4,24 +4,26 @@
       <div class="flex items-start justify-between mb-8">
         <!-- Search Bar -->
         <%= form_with url: admins_path, method: :get,
-          data: { 
-            controller: "search", 
-            action: "input->search#submit", 
-            turbo_frame: "database_table" 
-          } do |f| %>
-          <%= hidden_field_tag :tab, params[:tab] %>
+              data: { 
+                controller: "search", 
+                action: "input->search#submit", 
+                turbo_frame: "database_table" 
+              } do |f| %>
+          <%= hidden_field_tag :tab, @tab %>
+          <%# THIS LINE IS VITAL: keeps the sort direction when searching %>
+          <%= hidden_field_tag :sort, @sort_direction %>
           <div class="relative max-w-sm">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+            </div>
             <%= f.text_field :query,
-              value: params[:query],
-              placeholder: "Search #{params[:tab] == 'users' ? 'users' : 'contacts'}...",
-              autocomplete: "off",
-              class: "block w-full pl-10 pr-3 py-2 bg-gray-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-emerald-500" %>
+                  value: params[:query],
+                  placeholder: "Search #{params[:tab] == 'users' ? 'users' : 'contacts'}...",
+                  autocomplete: "off",
+                  class: "block w-full pl-10 pr-3 py-2 bg-gray-100 border-none rounded-lg text-sm focus:ring-2 focus:ring-emerald-500" %>
           </div>
         <% end %>
-
-
-
-        <!-- Create Actions (Swappable) -->
+        <!-- Action Buttons -->
         <div class="flex gap-3">
           <div data-admin-selection-target="createActions" class="flex gap-3">
             <%= link_to new_admin_path, class: "flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-bold rounded-lg hover:bg-gray-50 transition-all shadow-sm" do %>
@@ -33,7 +35,7 @@
               Add Contact
             <% end %>
           </div>
-          <!-- Bulk Actions (Hidden by default) -->
+          <!-- Bulk Actions (Stimulus controlled) -->
           <div data-admin-selection-target="bulkActions" class="hidden flex gap-3">
             <div class="relative" data-controller="dropdown">
               <button type="button" data-action="dropdown#toggle" class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-bold rounded-lg shadow-sm">
@@ -41,7 +43,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" /></svg>
               </button>
               <div data-dropdown-target="menu" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-lg shadow-xl z-50">
-                <%= button_tag "Export Selected", type: "submit", name: "admin_bulk_action", value: "export_selected", form: "admin-bulk-actions-form", class: "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50" %>
+                <%= button_tag "Export Selected", type: "submit", name: "admin_bulk_action", value: "export_selected", form: "admin-bulk-actions-form", data: { turbo: false }, class: "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50" %>
                 <%= link_to "Export All Contacts", bulk_manage_admins_path(admin_bulk_action: "export_all", format: :csv), class: "block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50" %>
               </div>
             </div>
@@ -52,21 +54,34 @@
             <% end %>
           </div>
         </div>
-
-		  
       </div>
-
-
-
-
-
-
-		
-      <div class="flex gap-10 border-b border-gray-100">
-        <%= link_to "Contacts", admins_path(tab: 'contacts'), data: { turbo_frame: "_top" }, class: "pb-4 text-sm font-bold #{params[:tab] != 'users' ? 'text-emerald-500 border-b-2 border-emerald-500' : 'text-gray-300 hover:text-gray-500'}" %>
-        <%= link_to "Users", admins_path(tab: 'users'), data: { turbo_frame: "_top" }, class: "pb-4 text-sm font-bold #{params[:tab] == 'users' ? 'text-emerald-500 border-b-2 border-emerald-500' : 'text-gray-300 hover:text-gray-500'}" %>
-      </div>
+     <div class="flex items-center gap-3 justify-between mb-6">
+       <!-- Tab Navigation -->
+<div class="flex gap-10 border-b border-gray-100">
+  <%# Pass current query and sort when switching tabs %>
+  <%= link_to "Contacts", admins_path(tab: 'contacts', query: params[:query], sort: @sort_direction), 
+              class: "pb-4 text-sm font-bold #{params[:tab] != 'users' ? 'text-emerald-500 border-b-2 border-emerald-500' : 'text-gray-300 hover:text-gray-500'}" %>
+  <%= link_to "Users", admins_path(tab: 'users', query: params[:query], sort: @sort_direction), 
+              class: "pb-4 text-sm font-bold #{params[:tab] == 'users' ? 'text-emerald-500 border-b-2 border-emerald-500' : 'text-gray-300 hover:text-gray-500'}" %>
+</div>
+<!-- Sort Button -->
+<div class="flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-lg border border-gray-100"
+     data-controller="sort"
+     data-sort-current-dir-value="<%= @sort_direction %>"
+     data-sort-frame-id-value="database_table">
+  <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Sort:</span>
+  <button type="button" 
+          data-action="click->sort#toggle"
+    class="flex items-center gap-1 text-sm font-bold text-emerald-600 hover:text-emerald-700">
+    <span data-sort-label><%= @sort_direction == "asc" ? "A-Z" : "Z-A" %></span>
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+    </svg>
+  </button>
+</div>
+     </div>
     </div>
+    <!-- Table Content -->
     <%= turbo_frame_tag "database_table" do %>
       <% if params[:tab] == 'users' %>
         <%= render "users_table" %>
@@ -77,9 +92,9 @@
       <% end %>
     <% end %>
   </div>
+  <!-- Sidebar -->
   <aside class="<%= 'hidden' if params[:tab] == 'users' %> w-96 h-[88%] flex flex-col bg-white border-l border-gray-100 overflow-auto">
     <%= turbo_frame_tag "profile_sidebar" do %>
-      <!-- Default state -->
       <div class="p-8 flex flex-col items-center text-center">
         <span class="text-xs font-bold text-gray-300 tracking-widest mb-4">No Contact Selected</span>
         <div class="h-48 w-48 rounded-full bg-gray-50 border-8 border-gray-50 shadow-inner mb-6 overflow-hidden flex items-center justify-center">

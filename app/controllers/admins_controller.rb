@@ -7,37 +7,33 @@ class AdminsController < ApplicationController
   layout "dashboard"
 
 
-
 def index
   @per_page = (params[:per_page] || 10).to_i.clamp(1, 100)
   @tab = params[:tab] || "contacts"
+  
+  # 1. Capture the current direction
   @sort_direction = params[:sort] == "asc" ? "asc" : "desc"
+  
+  # 2. CALCULATE THE OPPOSITE: This is what the link will point to
+  @next_direction = (@sort_direction == "asc" ? "desc" : "asc")
+  
   query_str = "%#{params[:query]}%" if params[:query].present?
 
   if @tab == "users"
     @users = User.includes(:admin_role)
-
-    # Apply search to users if query is present
-    if query_str
-      @users = @users.where("users.username ILIKE ? OR users.email ILIKE ?", query_str, query_str)
-    end
-
+    @users = @users.where("users.username ILIKE ? OR users.email ILIKE ?", query_str, query_str) if query_str
     @users = @users.order(username: @sort_direction).page(params[:page]).per(@per_page)
   else
     @all_contacts = Contact.includes(:user).left_outer_joins(:user)
-
-    # Apply search to contacts if query is present
     if query_str
       @all_contacts = @all_contacts.where(
         "contacts.first_name ILIKE ? OR contacts.last_name ILIKE ? OR contacts.phone_number ILIKE ? OR users.username ILIKE ?",
         query_str, query_str, query_str, query_str
       ).distinct
     end
-
     @all_contacts = @all_contacts.order(first_name: @sort_direction).page(params[:page]).per(@per_page)
   end
 end
-
 
 
 def edit
@@ -56,6 +52,14 @@ end
 
 def destroy
   @user = User.find(params[:id])
+
+  # 1. Prevent an admin from deleting themselves or other admins
+  if @user.admin?
+    redirect_to admins_path(tab: "users"), alert: "You cannot delete an admin user."
+    return
+  end
+
+  # 2. Proceed with deletion for regular users
   if @user.destroy
     redirect_to admins_path(tab: "users"), notice: "User #{@user.username} deleted successfully."
   else
