@@ -12,51 +12,98 @@
           <%= hidden_field_tag :tab, params[:tab] %>
           <%= hidden_field_tag :sort, @sort_direction %>
           <%= hidden_field_tag :query, params[:query] %>
-         <div class="flex items-center gap-3">
-  <!-- Search Bar -->
-  <div class="relative w-64"> <%# Set a fixed width or use flex-1 %>
-    
-    <%= f.text_field :query,
+          <div class="flex items-center gap-3">
+            <!-- Search Bar -->
+            <div class="relative w-64"> <%# Set a fixed width or use flex-1 %>
+              <%= f.text_field :query,
           value: params[:query],
           placeholder: "Search #{params[:tab] == 'users' ? 'users' : 'contacts'}...",
           autocomplete: "off",
           class: "block w-full h-10 pl-10 pr-3 bg-gray-100 border border-transparent rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all" %>
-  </div>
-  <!-- Owner Filter Dropdown (Hidden if tab is users) -->
-  <% unless params[:tab] == 'users' %>
-    <div class="relative w-48"> <%# Match height with h-10 %>
-      <%= f.select :owner_id, 
+            </div>
+            <!-- Owner Filter Dropdown (Hidden if tab is users) -->
+            <% unless params[:tab] == 'users' %>
+              <div class="relative w-48"> <%# Match height with h-10 %>
+                <%= f.select :owner_id, 
           options_from_collection_for_select(@owners, :id, :username, params[:owner_id]), 
           { include_blank: "Search by Owner" }, 
           { 
             class: "block w-full h-10 pl-3 pr-10 bg-white border border-transparent rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 appearance-none cursor-pointer hover:bg-gray-200 transition-all",
             data: { action: "change->search#submit" } 
           } %>
-      <!-- Custom Chevron for the dropdown -->
-      <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
-      </div>
-    </div>
-  <% end %>
-</div>
+                <!-- Custom Chevron for the dropdown -->
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/></svg>
+                </div>
+              </div>
+            <% end %>
+          </div>
         <% end %>
+        <div class="flex space-x-8">
+          <!-- Sort Button -->
+          <div class="flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-lg border border-gray-100"
+            data-controller="sort"
+                data-sort-current-dir-value="<%= @sort_direction %>"
+                data-sort-frame-id-value="database_table">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Sort:</span>
+            <button type="button" 
+              data-action="click->sort#toggle"
+              class="flex items-center gap-1 text-sm font-bold text-emerald-600 hover:text-emerald-700">
+              <span data-sort-label><%= @sort_direction == "asc" ? "A-Z" : "Z-A" %></span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+              </svg>
+            </button>
+          </div>
+          <!-- Show/Entries Controls (Stimulus controlled) -->
+          <div class="flex items-center gap-3 bg-white border border-gray-200 p-1.5 rounded-xl shadow-sm self-start lg:self-center" data-controller="counter">
+            <span class="pl-2 text-[10px] font-bold uppercase tracking-wider text-gray-400">Show</span>
+            <div class="flex h-[36px] items-center border border-gray-100 rounded-lg overflow-hidden bg-gray-50">
+              <button type="button" 
+              data-action="click->counter#decrement"
+                class="px-3 py-1 hover:bg-gray-200 text-gray-600 transition-colors border-r border-gray-100 font-bold select-none">-</button>
+              <%= form_with url: admins_path, method: :get, 
+                    data: { counter_target: "form", turbo_frame: "database_table", turbo_action: "advance" }, class: "w-20" do |f| %>
+                <%= f.hidden_field :query, value: params[:query] %>
+                <%= f.text_field :per_page, 
+            value: @per_page, 
+            readonly: true,
+            data: { counter_target: "input" },
+            class: "w-10 border-none bg-transparent text-center text-sm font-bold focus:ring-0 p-0 cursor-default" %>
+              <% end %>
+              <button type="button" 
+              data-action="click->counter#increment"
+                class="px-3 py-1 hover:bg-gray-200 text-gray-600 transition-colors border-l border-gray-100 font-bold select-none">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 justify-between mb-6">
+        <!-- Tab Navigation -->
+        <div class="flex gap-10 border-b border-gray-100">
+          <%# Pass current query and sort when switching tabs %>
+          <%= link_to "Contacts", admins_path(tab: 'contacts', query: params[:query], sort: @sort_direction), 
+              class: "pb-4 text-sm font-bold #{params[:tab] != 'users' ? 'text-emerald-500 border-b-2 border-emerald-500' : 'text-gray-300 hover:text-gray-500'}" %>
+          <%= link_to "Users", admins_path(tab: 'users', query: params[:query], sort: @sort_direction), 
+              class: "pb-4 text-sm font-bold #{params[:tab] == 'users' ? 'text-emerald-500 border-b-2 border-emerald-500' : 'text-gray-300 hover:text-gray-500'}" %>
+        </div>
         <!-- Action Buttons -->
         <div class="flex gap-3">
           <div data-admin-selection-target="createActions" class="flex gap-3">
-  <% if params[:tab] == 'users' %>
-    <%# Only show "New User" on the Users tab %>
-    <%= link_to new_admin_path, class: "flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-bold rounded-lg hover:bg-gray-50 transition-all shadow-sm" do %>
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
-      New User
-    <% end %>
-  <% else %>
-    <%# Show "Add Contact" on the Contacts tab (default) %>
-    <%= link_to new_contact_path, class: "flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-lg hover:bg-emerald-700 transition-all shadow-md shadow-emerald-100" do %>
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-      Add Contact
-    <% end %>
-  <% end %>
-</div>
+            <% if params[:tab] == 'users' %>
+              <%# Only show "New User" on the Users tab %>
+              <%= link_to new_admin_path, class: "flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 text-sm font-bold rounded-lg hover:bg-gray-50 transition-all shadow-sm" do %>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
+                New User
+              <% end %>
+            <% else %>
+              <%# Show "Add Contact" on the Contacts tab (default) %>
+              <%= link_to new_contact_path, class: "flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-lg hover:bg-emerald-700 transition-all shadow-md shadow-emerald-100" do %>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                Add Contact
+              <% end %>
+            <% end %>
+          </div>
           <!-- Bulk Actions (Stimulus controlled) -->
           <div data-admin-selection-target="bulkActions" class="hidden flex gap-3">
             <div class="relative" data-controller="dropdown">
@@ -75,31 +122,6 @@
               Delete <span data-admin-selection-target="count"></span>
             <% end %>
           </div>
-        </div>
-      </div>
-      <div class="flex items-center gap-3 justify-between mb-6">
-        <!-- Tab Navigation -->
-        <div class="flex gap-10 border-b border-gray-100">
-          <%# Pass current query and sort when switching tabs %>
-          <%= link_to "Contacts", admins_path(tab: 'contacts', query: params[:query], sort: @sort_direction), 
-              class: "pb-4 text-sm font-bold #{params[:tab] != 'users' ? 'text-emerald-500 border-b-2 border-emerald-500' : 'text-gray-300 hover:text-gray-500'}" %>
-          <%= link_to "Users", admins_path(tab: 'users', query: params[:query], sort: @sort_direction), 
-              class: "pb-4 text-sm font-bold #{params[:tab] == 'users' ? 'text-emerald-500 border-b-2 border-emerald-500' : 'text-gray-300 hover:text-gray-500'}" %>
-        </div>
-        <!-- Sort Button -->
-        <div class="flex items-center gap-2 px-3 py-1 bg-gray-50 rounded-lg border border-gray-100"
-     data-controller="sort"
-     data-sort-current-dir-value="<%= @sort_direction %>"
-     data-sort-frame-id-value="database_table">
-          <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Sort:</span>
-          <button type="button" 
-          data-action="click->sort#toggle"
-            class="flex items-center gap-1 text-sm font-bold text-emerald-600 hover:text-emerald-700">
-            <span data-sort-label><%= @sort_direction == "asc" ? "A-Z" : "Z-A" %></span>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-            </svg>
-          </button>
         </div>
       </div>
     </div>
