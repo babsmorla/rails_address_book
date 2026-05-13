@@ -78,4 +78,4 @@ gem "erb-formatter"
 
 gem "rubocop", "~> 1.86", group: :development
 
-gem "rubocop-rails", "~> 2.34", group: :development
+gem "rubocop-rails", "~> 2.35", group: :development
